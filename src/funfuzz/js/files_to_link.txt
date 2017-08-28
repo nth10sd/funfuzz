@@ -34,4 +34,5 @@ jsfunfuzz/run-reduction-marker.js
 
 jsfunfuzz/run-in-sandbox.js
 jsfunfuzz/run.js
-jsfunfuzz/tail.js
+
+jsfunfuzz/1514927.js
