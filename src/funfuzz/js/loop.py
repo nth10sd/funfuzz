@@ -241,6 +241,7 @@ def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccovera
                reduced testcase
     """
     # pylint: disable=too-many-arguments,too-many-locals
+    breakpoint()
     res = js_interesting.ShellResult(js_interesting_opts,
                                      js_interesting_opts.jsengineWithArgs, log_prefix, False, env=env)
 
@@ -278,6 +279,7 @@ def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccovera
                 options.build_options_str, target_time, res.lev)
 
             # Upload with final output
+            breakpoint()
             if lith_result == lithium_helpers.LITH_FINISHED:
                 fargs = js_interesting_opts.jsengineWithArgs[:-1] + [reduced_log]
                 retest_result = js_interesting.ShellResult(js_interesting_opts,
