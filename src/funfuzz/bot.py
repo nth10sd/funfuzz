@@ -25,7 +25,6 @@ from .js import build_options
 from .js import compile_shell
 from .js import loop
 from .util import create_collector
-from .util import fork_join
 from .util import hg_helpers
 from .util import sm_compile_helpers
 from .util.lock_dir import LockDir
@@ -134,8 +133,7 @@ def main():  # pylint: disable=missing-docstring
     except RuntimeError:
         # Ignore errors if the server is temporarily unavailable
         print("Failed to contact server")
-    fork_join.forkJoin(options.tempDir, number_of_processes, loopFuzzingAndReduction, options, build_info,
-                       collector)
+    loopFuzzingAndReduction(options, build_info, collector, 0)
     try:
         EC2Reporter().report("Fuzzing has finished...")
     except RuntimeError:
@@ -233,6 +231,7 @@ def ensureBuild(options):  # pylint: disable=invalid-name,missing-docstring,miss
 
 def loopFuzzingAndReduction(options, buildInfo, collector, i):  # pylint: disable=invalid-name,missing-docstring
     tempDir = Path(tempfile.mkdtemp(f"loop{i}"))  # pylint: disable=invalid-name
+    breakpoint()
     loop.many_timed_runs(options.targetTime, tempDir, buildInfo.mtrArgs, collector, False)
 
 
