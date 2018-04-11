@@ -435,6 +435,20 @@ def bisectLabel(hgPrefix, options, hgLabel, currRev, startRepo, endRepo):  # pyl
         cwd=os.getcwd(),
         stdout=subprocess.PIPE,
         timeout=999).stdout.decode("utf-8", errors="replace")
+
+    # pylint: disable=fixme
+    # FIXME: There isn't seemingly yet a way for bisectLabel to know that it is in the "second" bisect command to get
+    # an empty output, for it to know that no suitable bisect start/end points found for the range.
+    if not outputResult:
+        print("No suitable bisect start/end points found for the range...")
+        print("Resetting bisect")
+        print(subprocess.run([hgPrefix, "bisect", "--reset"],
+                             check=True,
+                             # pylint: disable=no-member
+                             cwd=os.getcwdu() if sys.version_info.major == 2 else os.getcwd(),
+                             stdout=subprocess.PIPE).stdout)
+        sys.exit("Quitting...")
+
     outputLines = outputResult.split("\n")
 
     repo_dir = None
