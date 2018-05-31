@@ -98,6 +98,7 @@ def run_lithium(lithArgs, logPrefix, targetTime):  # pylint: disable=invalid-nam
         shutil.rmtree(deletableLithTemp)
     r = readLithiumResult(lithlogfn)  # pylint: disable=invalid-name
 
+    breakpoint()
     with open(lithlogfn, "rb") as f_in:  # Replace the old gzip subprocess call
         with gzip.open(lithlogfn.with_suffix(".txt.gz"), "wb") as f_out:
             shutil.copyfileobj(f_in, f_out)
