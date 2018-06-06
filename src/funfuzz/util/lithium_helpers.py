@@ -40,16 +40,16 @@ runlithiumpy = [sys.executable, "-u", "-m", "lithium"]  # pylint: disable=invali
  LITH_FINISHED, LITH_RETESTED_STILL_INTERESTING, LITH_PLEASE_CONTINUE, LITH_BUSTED) = range(8)
 
 
-def pinpoint(itest, logPrefix, jsEngine, engineFlags, infilename,  # pylint: disable=invalid-name,missing-param-doc
+def pinpoint(itest, logPrefix, js_engine, engineFlags, infilename,  # pylint: disable=invalid-name,missing-param-doc
              bisectRepo, build_options_str, targetTime, suspiciousLevel):
     # pylint: disable=missing-return-doc,missing-return-type-doc,missing-type-doc,too-many-arguments,too-many-locals
     """Run Lithium and autobisectjs.
 
     itest must be an array of the form [module, ...] where module is an interestingness module.
-    The module's "interesting" function must accept [...] + [jsEngine] + engineFlags + infilename
+    The module's "interesting" function must accept [...] + [js_engine] + engineFlags + infilename
     (If it's not prepared to accept engineFlags, engineFlags must be empty.)
     """
-    lithArgs = itest + [str(jsEngine)] + engineFlags + [str(infilename)]  # pylint: disable=invalid-name
+    lithArgs = itest + [str(js_engine)] + engineFlags + [str(infilename)]  # pylint: disable=invalid-name
 
     (lithResult, lithDetails) = reduction_strat(  # pylint: disable=invalid-name
         logPrefix, infilename, lithArgs, targetTime, suspiciousLevel)
@@ -61,7 +61,7 @@ def pinpoint(itest, logPrefix, jsEngine, engineFlags, infilename,  # pylint: dis
 
     # pylint: disable=literal-comparison
     if (bisectRepo is not "none" and targetTime >= 3 * 60 * 60 and
-            build_options_str is not None and testJsShellOrXpcshell(jsEngine) != "xpcshell"):
+            build_options_str is not None and testJsShellOrXpcshell(js_engine) != "xpcshell"):
         autobisectCmd = (  # pylint: disable=invalid-name
             [sys.executable, "-u", "-m", "funfuzz.autobisectjs"] +
             ["-b", build_options_str] +

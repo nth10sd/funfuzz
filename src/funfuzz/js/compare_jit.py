@@ -61,7 +61,7 @@ def ignore_some_stderr(err_inp):
     return lines
 
 
-def compare_jit(jsEngine,  # pylint: disable=invalid-name,missing-param-doc,missing-type-doc,too-many-arguments
+def compare_jit(js_engine,  # pylint: disable=invalid-name,missing-param-doc,missing-type-doc,too-many-arguments
                 flags, infilename, logPrefix, repo, build_options_str, targetTime, options):
     """For use in loop.py
 
@@ -69,30 +69,32 @@ def compare_jit(jsEngine,  # pylint: disable=invalid-name,missing-param-doc,miss
         bool: True if any kind of bug is found, otherwise False
     """
     # pylint: disable=too-many-locals
+    js_engine = Path(js_engine)
+    infilename = Path(infilename)
     # If Lithium uses this as an interestingness test, logPrefix is likely not a Path object, so make it one.
     logPrefix = Path(logPrefix)
     initialdir_name = (logPrefix.parent / (logPrefix.stem + "-initial"))
-    # pylint: disable=invalid-name
-    cl = compareLevel(jsEngine, flags, infilename, initialdir_name, options, False, True)
+    cl = compareLevel(js_engine,  # pylint: disable=invalid-name
+                      flags, infilename, initialdir_name, options, False, True)
     lev = cl[0]
 
     if lev != js_interesting.JS_FINE:
         itest = [__name__, "--flags=" + " ".join(flags),
-                 "--minlevel=" + str(lev), "--timeout=" + str(options.timeout), options.knownPath]
+                 "--minlevel=" + str(lev), "--timeout=" + str(options.timeout)]
         (lithResult, _lithDetails, autoBisectLog) = lithium_helpers.pinpoint(  # pylint: disable=invalid-name
-            itest, logPrefix, jsEngine, [], infilename, repo, build_options_str, targetTime, lev)
+            itest, logPrefix, js_engine, [], infilename, repo, build_options_str, targetTime, lev)
         if lithResult == lithium_helpers.LITH_FINISHED:
-            print("Retesting %s after running Lithium:" % infilename)
+            print("Retesting %s after running Lithium:" % str(infilename))
             finaldir_name = (logPrefix.parent / (logPrefix.stem + "-final"))
-            retest_cl = compareLevel(jsEngine, flags, infilename, finaldir_name, options, True, False)
+            retest_cl = compareLevel(js_engine, flags, infilename, finaldir_name, options, True, False)
             if retest_cl[0] != js_interesting.JS_FINE:
-                cl = retest_cl
+                cl = retest_cl  # pylint: disable=invalid-name
                 quality = 0
             else:
                 quality = 6
         else:
             quality = 10
-        print("compare_jit: Uploading %s with quality %s" % (infilename, quality))
+        print("compare_jit: Uploading %s with quality %s" % (str(infilename), quality))
 
         metadata = {}
         if autoBisectLog:
@@ -103,17 +105,19 @@ def compare_jit(jsEngine,  # pylint: disable=invalid-name,missing-param-doc,miss
     return False
 
 
-def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDiffs, quickMode):
-    # pylint: disable=invalid-name,missing-docstring,missing-return-doc,missing-return-type-doc,too-complex
-    # pylint: disable=too-many-branches,too-many-arguments,too-many-locals
+def compareLevel(js_engine,  # pylint: disable=invalid-name,missing-docstring,missing-return-doc,missing-return-type-doc
+                 flags, infilename, logPrefix, options, showDetailedDiffs, quickMode):
+    # pylint: disable=too-complex,too-many-branches,too-many-arguments,too-many-locals
 
     # options dict must be one we can pass to js_interesting.ShellResult
-    # we also use it directly for knownPath, timeout, and collector
+    # we also use it directly for timeout, and collector
     # Return: (lev, crashInfo) or (js_interesting.JS_FINE, None)
 
-    assert isinstance(infilename, Path)
+    js_engine = Path(js_engine)
+    infilename = Path(infilename)
+    logPrefix = Path(logPrefix)
 
-    combos = shell_flags.basic_flag_sets(jsEngine)
+    combos = shell_flags.basic_flag_sets(str(js_engine))
 
     if quickMode:
         # Only used during initial fuzzing. Allowed to have false negatives.
@@ -122,7 +126,7 @@ def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDi
     if flags:
         combos.insert(0, flags)
 
-    commands = [[jsEngine] + combo + [str(infilename)] for combo in combos]
+    commands = [[str(js_engine)] + combo + [str(infilename)] for combo in combos]
 
     for i, command in enumerate(commands):
         prefix = (logPrefix.parent / ("%s-r%s" % (logPrefix.stem, str(i))))
@@ -192,8 +196,7 @@ def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDi
                 rerunCommand = " ".join(quote(str(x)) for x in ["python -m funfuzz.js.compare_jit",
                                                                 "--flags=" + " ".join(flags),
                                                                 "--timeout=" + str(options.timeout),
-                                                                str(options.knownPath),
-                                                                str(jsEngine),
+                                                                str(js_engine),
                                                                 str(infilename.name)])
                 (summary, issues) = summarizeMismatch(mismatchErr, mismatchOut, prefix0, prefix)
                 summary = ("  " + " ".join(quote(str(x)) for x in commands[0]) + "\n  " +
@@ -209,7 +212,7 @@ def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDi
                     print(summary)
                     print()
                 # Create a crashInfo object with empty stdout, and stderr showing diffs
-                pc = ProgramConfiguration.fromBinary(str(jsEngine))  # pylint: disable=invalid-name
+                pc = ProgramConfiguration.fromBinary(str(js_engine))  # pylint: disable=invalid-name
                 pc.addProgramArguments(flags)
                 crashInfo = CrashInfo.CrashInfo.fromRawCrashData([], summary, pc)  # pylint: disable=invalid-name
                 return (js_interesting.JS_OVERALL_MISMATCH, crashInfo)
@@ -281,11 +284,10 @@ def parseOptions(args):  # pylint: disable=invalid-name
                       default="",
                       help="space-separated list of one set of flags")
     options, args = parser.parse_args(args)
-    if len(args) != 3:
-        raise Exception("Wrong number of positional arguments. Need 3 (knownPath, jsengine, infilename).")
-    options.knownPath = Path(args[0]).expanduser().resolve()
-    options.jsengine = Path(args[1]).expanduser().resolve()
-    options.infilename = Path(args[2]).expanduser().resolve()
+    if len(args) != 2:
+        raise Exception("Wrong number of positional arguments. Need 2 (jsengine, infilename).")
+    options.jsengine = Path(args[0]).expanduser().resolve()
+    options.infilename = Path(args[1]).expanduser().resolve()
     options.flags = options.flagsSpaceSep.split(" ") if options.flagsSpaceSep else []
     if not options.jsengine.is_file():
         raise OSError("js shell does not exist: %s" % options.jsengine)
@@ -298,24 +300,37 @@ def parseOptions(args):  # pylint: disable=invalid-name
     return options
 
 
-# For use by Lithium and autobisectjs. (autobisectjs calls init multiple times because it changes the js engine name)
-def init(args):
-    global gOptions  # pylint: disable=invalid-name,global-statement
-    gOptions = parseOptions(args)
+class Interesting(object):
+
+    def __init__(self, interestingness_script=False):
+        if interestingness_script:
+            global init, interesting  # pylint: disable=global-variable-undefined
+            init = self.init
+            interesting = self.interesting
+
+        self.args = None
+        self.real_level = None
+
+    # For use by Lithium and autobisectjs.
+    # (autobisectjs calls init multiple times because it changes the js engine name)
+    def init(self, args):
+        self.args = parseOptions(args)
+
+    def interesting(self, _args, cwd_prefix):  # pylint: disable=missing-docstring,missing-return-doc
+        # pylint: disable=missing-return-type-doc
+        self.real_level = compareLevel(
+            Path(self.args.jsengine), self.args.flags, Path(self.args.infilename),
+            Path(cwd_prefix), self.args, False, False)[0]
+        return self.real_level >= self.args.minimumInterestingLevel
 
 
-# FIXME: _args is unused here, we should check if it can be removed?  # pylint: disable=fixme
-def interesting(_args, cwd_prefix):
-    cwd_prefix = Path(cwd_prefix)  # Lithium uses this function and cwd_prefix from Lithium is not a Path
-    actualLevel = compareLevel(  # pylint: disable=invalid-name
-        gOptions.jsengine, gOptions.flags, gOptions.infilename, cwd_prefix, gOptions, False, False)[0]
-    return actualLevel >= gOptions.minimumInterestingLevel
+Interesting(interestingness_script=True)
 
 
 def main():
     options = parseOptions(sys.argv[1:])
     print(compareLevel(
-        options.jsengine, options.flags, options.infilename,  # pylint: disable=no-member
+        Path(options.jsengine), options.flags, Path(options.infilename),  # pylint: disable=no-member
         Path(tempfile.mkdtemp("compare_jitmain")), options, True, False)[0])
 
 

@@ -66,7 +66,7 @@ VALGRIND_ERROR_EXIT_CODE = 77
 
 class ShellResult(object):  # pylint: disable=missing-docstring,too-many-instance-attributes,too-few-public-methods
 
-    # options dict should include: timeout, knownPath, collector, valgrind, shellIsDeterministic
+    # options dict should include: timeout, collector, valgrind, shellIsDeterministic
     def __init__(self, options, runthis, logPrefix, in_compare_jit, env=None):  # pylint: disable=too-complex
         # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
 
@@ -328,8 +328,7 @@ def parseOptions(args):  # pylint: disable=invalid-name,missing-docstring,missin
     options, args = parser.parse_args(args)
     if len(args) < 2:
         raise Exception("Not enough positional arguments")
-    options.knownPath = args[0]
-    options.jsengineWithArgs = [Path(args[1]).resolve()] + args[2:-1] + [Path(args[-1]).resolve()]
+    options.jsengineWithArgs = [Path(args[0]).resolve()] + args[1:-1] + [Path(args[-1]).resolve()]
     assert options.jsengineWithArgs[0].is_file()  # js shell
     assert options.jsengineWithArgs[-1].is_file()  # testcase
     options.collector = create_collector.make_collector()
@@ -342,24 +341,30 @@ def parseOptions(args):  # pylint: disable=invalid-name,missing-docstring,missin
 # loop uses parseOptions and ShellResult [with in_compare_jit = False]
 # compare_jit uses ShellResult [with in_compare_jit = True]
 
-# For use by Lithium and autobisectjs. (autobisectjs calls init multiple times because it changes the js engine name)
-def init(args):  # pylint: disable=missing-docstring
-    global gOptions  # pylint: disable=global-statement,invalid-name
-    gOptions = parseOptions(args)
+class Interesting(object):  # pylint: disable=missing-docstring
+
+    def __init__(self, interestingness_script=False):
+        if interestingness_script:
+            global init, interesting  # pylint: disable=global-variable-undefined,invalid-name
+            init = self.init
+            interesting = self.interesting
+
+        self.args = None
+
+    def init(self, args):  # pylint: disable=missing-docstring
+        self.args = parseOptions(args)
+
+    def interesting(self, _args, cwd_prefix):  # pylint: disable=missing-docstring,missing-return-doc
+        # pylint: disable=missing-return-type-doc
+        cwd_prefix = Path(cwd_prefix)  # Lithium uses this function, and cwd_prefix from Lithium is not a Path
+        # options, runthis, logPrefix, in_compare_jit
+        res = ShellResult(self.args, self.args.jsengineWithArgs, cwd_prefix, False)
+        truncateFile((cwd_prefix.parent / (cwd_prefix.stem + "-out")).with_suffix(".txt"), 1000000)
+        truncateFile((cwd_prefix.parent / (cwd_prefix.stem + "-err")).with_suffix(".txt"), 1000000)
+        return res.lev >= self.args.minimumInterestingLevel
 
 
-# FIXME: _args is unused here, we should check if it can be removed?  # pylint: disable=fixme
-def interesting(_args, cwd_prefix):  # pylint: disable=missing-docstring,missing-return-doc
-    # pylint: disable=missing-return-type-doc
-    cwd_prefix = Path(cwd_prefix)  # Lithium uses this function and cwd_prefix from Lithium is not a Path
-    options = gOptions
-    # options, runthis, logPrefix, in_compare_jit
-    res = ShellResult(options, options.jsengineWithArgs, cwd_prefix, False)
-    out_log = (cwd_prefix.parent / (cwd_prefix.stem + "-out")).with_suffix(".txt")
-    err_log = (cwd_prefix.parent / (cwd_prefix.stem + "-err")).with_suffix(".txt")
-    truncateFile(out_log, 1000000)
-    truncateFile(err_log, 1000000)
-    return res.lev >= gOptions.minimumInterestingLevel
+Interesting(interestingness_script=True)
 
 
 # For direct, manual use
