@@ -273,7 +273,7 @@ def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccovera
             itest.append(f"--minlevel={res.lev}")
             itest.append(f"--timeout={options.timeout}")
             itest.append(options.knownPath)
-            (lith_result, _lith_details, autobisect_log) = lithium_helpers.pinpoint(
+            (lith_result, _lith_details, _autobisect_log) = lithium_helpers.pinpoint(
                 itest, log_prefix, options.jsEngine, options.engineFlags, reduced_log, options.repo,
                 options.build_options_str, target_time, res.lev)
 
@@ -294,9 +294,9 @@ def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccovera
 
             print(f"Submitting {reduced_log} (quality={quality}) at {time.asctime()}")
 
-            metadata = {}
-            if autobisect_log:
-                metadata = {"autobisect_log": "".join(autobisect_log)}
+            # metadata = {}
+            # if autobisect_log:
+            #     metadata = {"autobisect_log": "".join(autobisect_log)}
 
             # Create .zip file for uploading to FuzzManager as some testcases can be 8MB+, see https://git.io/fjqxI
             assert reduced_log.is_file()
