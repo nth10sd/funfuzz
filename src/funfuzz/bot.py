@@ -116,7 +116,11 @@ def main():  # pylint: disable=missing-docstring
     build_info = ensureBuild(options)
     assert build_info.buildDir.is_dir()
 
-    number_of_processes = multiprocessing.cpu_count()
+    # Be on m-c rev 416424:d2a4720d1c33, compile the following
+    # In a temp dir, run this file with: -b "--build-with-clang --build-with-asan"
+    # Sample command:
+    # pip install --user --upgrade ~/funfuzz/ ; python -u -m funfuzz.bot -b "--build-with-clang --build-with-asan"
+    number_of_processes = 1
     if "-asan" in str(build_info.buildDir):
         # This should really be based on the amount of RAM available, but I don't know how to compute that in Python.
         # I could guess 1 GB RAM per core, but that wanders into sketchyville.
