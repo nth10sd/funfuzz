@@ -54,7 +54,8 @@ def ignore_some_stderr(err_inp):
 
 
 def compare_jit(jsEngine,  # pylint: disable=invalid-name,missing-param-doc,missing-type-doc,too-many-arguments
-                flags, infilename, logPrefix, repo, build_options_str, targetTime, options, ccoverage):
+                flags, infilename, logPrefix, repo, build_options_str, targetTime, options, ccoverage,
+                js_engine_2=None):
     """For use in loop.py
 
     Returns:
@@ -66,7 +67,8 @@ def compare_jit(jsEngine,  # pylint: disable=invalid-name,missing-param-doc,miss
     initialdir_name = logPrefix.parent / f"{logPrefix.stem}-initial"
     is_quick_mode = random() < 0.5
     # pylint: disable=invalid-name
-    cl = compareLevel(jsEngine, flags, infilename, initialdir_name, options, False, is_quick_mode)
+    cl = compareLevel(jsEngine, flags, infilename, initialdir_name, options, False, is_quick_mode,
+                      js_engine_2=js_engine_2)
     lev = cl[0]
 
     if not (ccoverage or lev == js_interesting.JS_FINE):
@@ -77,7 +79,8 @@ def compare_jit(jsEngine,  # pylint: disable=invalid-name,missing-param-doc,miss
         if lithResult == lithium_helpers.LITH_FINISHED:
             print(f"Retesting {infilename} after running Lithium:")
             finaldir_name = logPrefix.parent / f"{logPrefix.stem}-final"
-            retest_cl = compareLevel(jsEngine, flags, infilename, finaldir_name, options, True, False)
+            retest_cl = compareLevel(jsEngine, flags, infilename, finaldir_name, options, True, False,
+                                     js_engine_2=js_engine_2)
             if retest_cl[0] != js_interesting.JS_FINE:
                 cl = retest_cl
                 quality = 0
@@ -96,7 +99,7 @@ def compare_jit(jsEngine,  # pylint: disable=invalid-name,missing-param-doc,miss
     return False
 
 
-def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDiffs, quickMode):
+def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDiffs, quickMode, js_engine_2=None):
     # pylint: disable=invalid-name,missing-docstring,missing-return-doc,missing-return-type-doc,too-complex
     # pylint: disable=too-many-branches,too-many-arguments,too-many-locals,too-many-statements
 
@@ -128,6 +131,16 @@ def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDi
         combos.insert(0, flags)
 
     commands = [[jsEngine] + combo + [str(infilename)] for combo in combos]
+    if js_engine_2:
+        combos2 = shell_flags.basic_flag_sets()
+
+        if quickMode:
+            # Only used during initial fuzzing. Allowed to have false negatives.
+            combos2 = [combos2[0]]
+
+        if flags:
+            combos2.insert(0, flags)
+        commands.extend([[js_engine_2] + combo2 + [str(infilename)] for combo2 in combos2])
 
     r0 = None
     prefix0 = None
@@ -324,6 +337,7 @@ def init(args):
 # FIXME: _args is unused here, we should check if it can be removed?  # pylint: disable=fixme
 def interesting(_args, cwd_prefix):
     cwd_prefix = Path(cwd_prefix)  # Lithium uses this function and cwd_prefix from Lithium is not a Path
+    print("Cross-binary compare_jit cannot be run in interestingness compare_jit mode yet, functionality not yet added")
     actualLevel = compareLevel(  # pylint: disable=invalid-name
         gOptions.jsengine, gOptions.flags, gOptions.infilename, cwd_prefix, gOptions, False, False)[0]
     return actualLevel >= gOptions.minimumInterestingLevel
@@ -331,6 +345,7 @@ def interesting(_args, cwd_prefix):
 
 def main():
     options = parseOptions(sys.argv[1:])
+    print("Cross-binary compare_jit cannot be run in standalone compare_jit mode yet, functionality not yet added")
     print(compareLevel(
         options.jsengine, options.flags, options.infilename,  # pylint: disable=no-member
         Path(tempfile.mkdtemp("compare_jitmain")), options, True, False)[0])

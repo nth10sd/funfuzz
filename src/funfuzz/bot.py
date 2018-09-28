@@ -217,7 +217,7 @@ def ensureBuild(options):  # pylint: disable=invalid-name,missing-docstring,miss
                 f"==============================================\n\n"
             )
 
-            manyTimedRunArgs = mtrArgsCreation(options, cshell)  # pylint: disable=invalid-name
+            manyTimedRunArgs = mtrArgsCreation(options, cshell, bRev)  # pylint: disable=invalid-name
             print(f"buildDir is: {bDir}")
             print(f"buildSrc is: {bSrc}")
     else:
@@ -232,7 +232,7 @@ def loopFuzzingAndReduction(options, buildInfo, collector, i):  # pylint: disabl
     loop.many_timed_runs(options.targetTime, tempDir, buildInfo.mtrArgs, collector, False)
 
 
-def mtrArgsCreation(options, cshell):  # pylint: disable=invalid-name,missing-param-doc,missing-return-doc
+def mtrArgsCreation(options, cshell, bRev):  # pylint: disable=invalid-name,missing-param-doc,missing-return-doc
     # pylint: disable=missing-return-type-doc,missing-type-doc
     """Create many_timed_run arguments for compiled builds."""
     manyTimedRunArgs = []  # pylint: disable=invalid-name
@@ -244,6 +244,17 @@ def mtrArgsCreation(options, cshell):  # pylint: disable=invalid-name,missing-pa
         # Treeherder shells not using compare_jit:
         #   They are not built with --enable-more-deterministic - bug 751700
         manyTimedRunArgs.append("--compare-jit")
+        if options.build_options.js_engine_2:
+            manyTimedRunArgs.append("--js-engine-2=%s" % options.build_options.js_engine_2)
+        elif (not (platform.system() == "Darwin" or "Microsoft" in platform.release()) and
+              not options.build_options.enable32):
+            # If compiling 64-bit shells, also compile the 32-bit one
+            # This does not happen on macOS, nor on WSL on Windows
+            options.build_options.enable32 = True
+            cshell2 = compile_shell.CompiledShell(options.build_options, bRev)
+            updateLatestTxt = (options.build_options.repo_dir == "mozilla-central")  # pylint: disable=invalid-name
+            compile_shell.obtainShell(cshell2, updateLatestTxt=updateLatestTxt)
+            options.build_options.enable32 = False
     manyTimedRunArgs.append("--random-flags")
 
     # Ordering of elements in manyTimedRunArgs is important.

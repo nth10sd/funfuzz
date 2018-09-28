@@ -146,17 +146,25 @@ def addParserOptions():  # pylint: disable=invalid-name,missing-return-doc,missi
                              "This flag is obsolete and is the equivalent of --enable-simulator=arm, "
                              'use --enable-simulator=[arm|arm64] instead. Defaults to "%(default)s".')
 
+    parser.add_argument("--js-engine-2",
+                        dest="js_engine_2",
+                        type=Path,
+                        help="Build second shell for compare_jit. Requires --enable-more-deterministic.")
+
     # If adding a new compile option, be mindful of repository randomization.
     # e.g. it may be in mozilla-central but not in mozilla-beta
 
     return parser, randomizer
 
 
-def parse_shell_opts(args):
+def parse_shell_opts(args):  # pylint: disable=too-complex,too-many-branches
     """Parses shell options into a build_options object.
 
     Args:
         args (object): Arguments to be parsed
+
+    Raises:
+        ValueError: Raises when --js-engine-2 is specified but --enable-more-deterministic is not
 
     Returns:
         build_options: An immutable build_options object
@@ -174,6 +182,11 @@ def parse_shell_opts(args):
         valid = areArgsValid(build_options)
         if not valid[0]:
             print(f"WARNING: This set of build options is not tested well because: {valid[1]}")
+
+    if build_options.js_engine_2:
+        if not build_options.enableMoreDeterministic:
+            raise ValueError("--enable-more-deterministic is needed for compare_jit "
+                             "when a second js engine binary is specified.")
 
     if build_options.patch_file:
         build_options.patch_file = build_options.patch_file.expanduser().resolve()

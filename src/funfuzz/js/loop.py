@@ -39,6 +39,9 @@ def parseOpts(args):  # pylint: disable=invalid-name,missing-docstring,missing-r
                       default=False,
                       help="After running the fuzzer, run the FCM lines against the engine "
                            "in two configurations and compare the output.")
+    parser.add_option("--js-engine-2",
+                      action="store", dest="js_engine_2",
+                      help="Second js engine to compare output.")
     parser.add_option("--random-flags",
                       action="store_true", dest="randomFlags",
                       default=False,
@@ -215,7 +218,8 @@ def many_timed_runs(target_time, wtmp_dir, args, collector, ccoverage):
 
             compare_jit.compare_jit(options.jsEngine, options.engineFlags, cj_testcase,
                                     log_prefix.parent / f"{log_prefix.stem}-cj", options.repo,
-                                    options.build_options_str, target_time, js_interesting_opts, ccoverage)
+                                    options.build_options_str, target_time, js_interesting_opts, ccoverage,
+                                    js_engine_2=options.js_engine_2)
 
             if cj_testcase.is_file():
                 cj_testcase.unlink()
