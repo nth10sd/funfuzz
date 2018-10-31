@@ -9,6 +9,7 @@
 
 import gzip
 import io
+import mmap
 from pathlib import Path
 import re
 from shlex import quote
@@ -16,8 +17,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-
-from lithium.interestingness.utils import file_contains_str
 
 from . import file_manipulation
 from ..js.inspect_shell import testJsShellOrXpcshell
@@ -146,7 +145,7 @@ def reduction_strat(logPrefix, infilename, lithArgs, targetTime, lev):  # pylint
         full_lith_args = [x for x in (strategy + lithArgs) if x]
         print(" ".join(quote(str(x)) for x in [sys.executable, "-u", "-m", "lithium"] + full_lith_args))
 
-        desc = "-chars" if strategy == "--char" else "-lines"
+        desc = "-chars" if "--char" in strategy else "-lines"
         (lith_result, lith_details) = run_lithium(
             full_lith_args, (logPrefix.parent / f"{logPrefix.stem}-{reductionCount[0]}{desc}"), targetTime)
 
@@ -156,7 +155,7 @@ def reduction_strat(logPrefix, infilename, lithArgs, targetTime, lev):  # pylint
     print("Running the first line reduction...")
     print()
     # Step 1: Run the first instance of line reduction.
-    lith_result, lith_details = lith_reduce([])
+    lith_result, lith_details = lith_reduce(["--strategy=minimize-balanced"])
 
     origNumOfLines = None  # pylint: disable=invalid-name
     if lith_details is not None:  # lith_details can be None if testcase no longer becomes interesting
@@ -174,8 +173,14 @@ def reduction_strat(logPrefix, infilename, lithArgs, targetTime, lev):  # pylint
             if hasTryItOut:  # Stop searching after finding the first tryItOut line.
                 break
 
-    # Step 2: Run 1 instance of 1-line reduction after moving tryItOut and count=X around.
-    if lith_result == LITH_FINISHED and origNumOfLines <= 50 and hasTryItOut and lev >= JS_VG_AMISS:
+    # Step 2a: Run character reduction for testcases without tryItOut, i.e. compare_jit
+    if not hasTryItOut and targetTime is None and lev >= JS_OVERALL_MISMATCH:
+        with open(str(infilename), "rb", 0) as f, mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as g:
+            if g.find(b"isAsmJSCompilationAvailable") == -1:  # i.e. isAsmJSCompilationAvailable is not found
+                lith_result, lith_details = lith_reduce(["--strategy=minimize-balanced", "--char"])
+
+    # Step 2b: Run 1 instance of 1-line reduction after moving tryItOut and count=X around.
+    elif lith_result == LITH_FINISHED and origNumOfLines <= 50 and lev >= JS_VG_AMISS:
 
         tryItOutAndCountRegex = re.compile(r'"\);\ncount=([0-9]+); tryItOut\("',  # pylint: disable=invalid-name
                                            re.MULTILINE)
@@ -191,11 +196,10 @@ def reduction_strat(logPrefix, infilename, lithArgs, targetTime, lev):  # pylint
         print("Running 1 instance of 1-line reduction after moving tryItOut and count=X...")
         print()
         # --chunksize=1: Reduce only individual lines, for only 1 round.
-        lith_result, lith_details = lith_reduce(["--chunksize=1"])
+        lith_result, lith_details = lith_reduce(["--strategy=minimize-balanced", "--chunksize=1"])
 
-    # Step 3: Run 1 instance of 2-line reduction after moving count=X to its own line and add a
-    # 1-line offset.
-    if lith_result == LITH_FINISHED and origNumOfLines <= 50 and hasTryItOut and lev >= JS_VG_AMISS:
+    # Step 3b: Run 1 instance of 2-line reduction after moving count=X to its own line and add a 1-line offset.
+    elif lith_result == LITH_FINISHED and origNumOfLines <= 50 and lev >= JS_VG_AMISS:
         intendedLines = []  # pylint: disable=invalid-name
         with io.open(str(infilename), "r", encoding="utf-8", errors="replace") as f:
             for line in f:  # The testcase is likely to already be partially reduced.
@@ -211,48 +215,24 @@ def reduction_strat(logPrefix, infilename, lithArgs, targetTime, lev):  # pylint
         print()
         print("Running 1 instance of 2-line reduction after moving count=X to its own line...")
         print()
-        lith_result, lith_details = lith_reduce(["--chunksize=2"])
+        lith_result, lith_details = lith_reduce(["--strategy=minimize-balanced", "--chunksize=2"])
 
-    # Step 4: Run 1 instance of 2-line reduction again, e.g. to remove pairs of STRICT_MODE lines.
-    if lith_result == LITH_FINISHED and origNumOfLines <= 50 and hasTryItOut and lev >= JS_VG_AMISS:
+    # Step 4b: Run 1 instance of 2-line reduction again, e.g. to remove pairs of STRICT_MODE lines.
+    elif lith_result == LITH_FINISHED and origNumOfLines <= 50 and lev >= JS_VG_AMISS:
         print()
         print("Running 1 instance of 2-line reduction again...")
         print()
-        lith_result, lith_details = lith_reduce(["--chunksize=2"])
+        lith_result, lith_details = lith_reduce(["--strategy=minimize-balanced", "--chunksize=2"])
 
-    isLevOverallMismatchAsmJsAvailable = (lev == JS_OVERALL_MISMATCH and  # pylint: disable=invalid-name
-                                          file_contains_str(str(infilename), b"isAsmJSCompilationAvailable"))
-    # Step 5 (not always run): Run character reduction within interesting lines.
-    if lith_result == LITH_FINISHED and origNumOfLines <= 50 and targetTime is None and \
-            lev >= JS_OVERALL_MISMATCH and not isLevOverallMismatchAsmJsAvailable:
+    # Step 5b: Run character reduction within JavaScript code inside interesting lines provided regression-test-inline
+    #   is not found. We will lose the original filename of the random test as chosen by randorderfuzz.
+    elif lith_result == LITH_FINISHED and origNumOfLines <= 50 and lev >= JS_VG_AMISS:
+        with open(str(infilename), "rb", 0) as f, mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as g:
+            if g.find(b"regression-test-inline") == -1:  # i.e. regression-test-inline is not found
+                lith_result, lith_details = lith_reduce(["--strategy=minimize-balanced", "--char"])
         print()
-        print("Running character reduction...")
+        print("Running character reduction within JavaScript...")
         print()
-        lith_result, lith_details = lith_reduce(["--char"])
-
-    # Step 6: Run line reduction after activating SECOND DDBEGIN with a 1-line offset.
-    if lith_result == LITH_FINISHED and origNumOfLines <= 50 and hasTryItOut and lev >= JS_VG_AMISS:
-        infileContents = []  # pylint: disable=invalid-name
-        with io.open(str(infilename), "r", encoding="utf-8", errors="replace") as f:
-            for line in f:
-                if "NIGEBDD" in line:
-                    infileContents.append(line.replace("NIGEBDD", "DDBEGIN"))
-                    infileContents.append("\n")  # The 1-line offset is added here.
-                    continue
-                infileContents.append(line)
-        with io.open(str(infilename), "w", encoding="utf-8", errors="replace") as f:
-            f.writelines(infileContents)
-
-        print()
-        print("Running line reduction with a 1-line offset...")
-        print()
-        lith_result, lith_details = lith_reduce([])
-
-    # Step 7: Run line reduction for a final time.
-    if lith_result == LITH_FINISHED and origNumOfLines <= 50 and hasTryItOut and lev >= JS_VG_AMISS:
-        print()
-        print("Running the final line reduction...")
-        print()
-        lith_result, lith_details = lith_reduce([])
+        lith_result, lith_details = lith_reduce(["--strategy=minimize-balanced", "--char", "--js"])
 
     return lith_result, lith_details
