@@ -223,7 +223,7 @@ def many_timed_runs(target_time, wtmp_dir, args, collector, ccoverage):
         file_system_helpers.delete_logs(log_prefix)
 
 
-def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccoverage, collector, target_time):
+def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccoverage, _collector, target_time):
     """Runs the js shell with testcases and report them to FuzzManager if they are interesting.
 
     Args:
@@ -233,7 +233,7 @@ def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccovera
         log_prefix (str): log_prefix'es
         fuzzjs (Path): Path to the jsfunfuzz file
         ccoverage (bool): Whether we are running in coverage gathering mode
-        collector (object): Collector object for FuzzManager submission
+        _collector (object): Collector object for FuzzManager submission
         target_time (int): Target time the harness runs before restarting
 
     Returns:
@@ -304,13 +304,14 @@ def run_to_report(options, js_interesting_opts, env, log_prefix, fuzzjs, ccovera
             with zipfile.ZipFile(result_zip, "w") as f:
                 f.write(reduced_log, reduced_log.name, compress_type=zipfile.ZIP_DEFLATED)
 
-            create_collector.submit_collector(collector, res.crashInfo, str(result_zip), quality, meta_data=metadata)
+            # create_collector.submit_collector(collector, res.crashInfo, str(result_zip), quality, meta_data=metadata)
+            print(f"Submission simulated to occur {result_zip}")
             print(f"Submitted {result_zip}")
 
     return res, out_log
 
 
-def run_to_report_wasm(_options, js_interesting_opts, env, log_prefix, out_log, ccoverage, collector, _target_time):
+def run_to_report_wasm(_options, js_interesting_opts, env, log_prefix, out_log, _ccoverage, _collector, _target_time):
     """Runs the js shell with wasm testcases and report them to FuzzManager if they are interesting.
 
     Args:
@@ -319,8 +320,8 @@ def run_to_report_wasm(_options, js_interesting_opts, env, log_prefix, out_log, 
         env (dict): Environment to be run in
         log_prefix (str): log_prefix'es
         out_log (Path): Path to the jsfunfuzz w*-out log file to act as the seed
-        ccoverage (bool): Whether we are running in coverage gathering mode
-        collector (object): Collector object for FuzzManager submission
+        _ccoverage (bool): Whether we are running in coverage gathering mode
+        _collector (object): Collector object for FuzzManager submission
         _target_time (int): Target time the harness runs before restarting
     """
     # pylint: disable=too-many-arguments
@@ -358,10 +359,11 @@ def run_to_report_wasm(_options, js_interesting_opts, env, log_prefix, out_log, 
                 f.write(wrapper_file, wrapper_file.name, compress_type=zipfile.ZIP_DEFLATED)
                 f.write(wasm_file, wasm_file.name, compress_type=zipfile.ZIP_DEFLATED)
 
-            if not ccoverage:
-                # Quality is 10, meta_data {}
-                create_collector.submit_collector(collector, res.crashInfo, str(result_zip), 10, meta_data={})
-                print(f"Submitted {result_zip}")
+            # if not ccoverage:
+            #     # Quality is 10, meta_data {}
+            #     create_collector.submit_collector(collector, res.crashInfo, str(result_zip), 10, meta_data={})
+            print(f"Submission simulated to occur {result_zip}")
+            print(f"Submitted {result_zip}")
 
 
 def jitCompareLines(jsfunfuzzOutputFilename, marker):  # pylint: disable=invalid-name,missing-param-doc
