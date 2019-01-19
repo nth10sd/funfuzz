@@ -173,6 +173,8 @@ before_script:
       (find . -type d \( -name venv \) -prune -o -type f -name "*.sh" -print0 | xargs -n 1 -0 bashate; exit;)
     fi
 script:
+  # and fix x64 searching for debugging tools folder - now going to be in Windows Kits (remove for < Win 10)
+  # NOT TO LAND THIS LINE AND ABOVE and change the one for gflags
   # To run everything locally in local funfuzz github repository directory:
   #   python -m pytest --flake8 --pylint --cov=`pwd` --cov-report term-missing
   # Compile-related tests are expected to fail at this stage (skip pylint with development Python versions)
