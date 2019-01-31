@@ -10,6 +10,8 @@ import io
 import logging
 from pathlib import Path
 
+import pytest
+
 from funfuzz.js import link_fuzzer
 
 FUNFUZZ_TEST_LOG = logging.getLogger("funfuzz_test")
@@ -17,6 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("flake8").setLevel(logging.ERROR)
 
 
+@pytest.mark.skip(reason="temporarily suspended")
 def test_link_fuzzer(tmpdir):
     """Test that a full jsfunfuzz file can be created.
 
