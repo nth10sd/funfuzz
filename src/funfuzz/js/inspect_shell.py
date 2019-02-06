@@ -85,10 +85,13 @@ if platform.system() == "Windows":
         ALL_RUN_LIBS.append(f"{RUN_ICUTU_LIB_EXCL_EXT}{icu_ver}d.dll")
 
 
-def archOfBinary(binary):  # pylint: disable=inconsistent-return-statements,invalid-name,missing-param-doc
+def arch_of_binary(binary):  # pylint: disable=inconsistent-return-statements,invalid-name,missing-param-doc
     # pylint: disable=missing-return-doc,missing-return-type-doc,missing-type-doc
-    """Test if a binary is 32-bit or 64-bit."""
-    # We can possibly use the python-magic-bin PyPI library in the future
+    """Test if a binary is 32-bit or 64-bit.
+
+    Raises:
+        ValueError: ValueError raised if funfuzz interacts with 32-bit macOS builds
+    """
     unsplit_file_type = subprocess.run(
         ["file", str(binary)],
         check=True,
@@ -101,6 +104,8 @@ def archOfBinary(binary):  # pylint: disable=inconsistent-return-statements,inva
         return "32" if ("Intel 80386 32-bit" in filetype or "PE32 executable" in filetype) else "64"
     else:
         if "32-bit" in filetype or "i386" in filetype:
+            if platform.system() == "Darwin":
+                raise ValueError("32-bit macOS builds are no longer supported")
             assert "64-bit" not in filetype
             return "32"
         if "64-bit" in filetype:
@@ -194,7 +199,7 @@ def verifyBinary(sh):  # pylint: disable=invalid-name,missing-param-doc,missing-
     """Verify that the binary is compiled as intended."""
     binary = sh.get_shell_cache_js_bin_path()
 
-    assert archOfBinary(binary) == ("32" if sh.build_opts.enable32 else "64")
+    assert arch_of_binary(binary) == ("32" if sh.build_opts.enable32 else "64")
 
     # Testing for debug or opt builds are different because there can be hybrid debug-opt builds.
     assert queryBuildConfiguration(binary, "debug") == sh.build_opts.enableDbg
