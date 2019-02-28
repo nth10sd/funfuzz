@@ -1,0 +1,2 @@
+# Ignore test-asm.js until BigInt is supported
+jsfunfuzz/test-asm.js

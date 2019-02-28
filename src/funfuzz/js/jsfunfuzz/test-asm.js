@@ -55,7 +55,19 @@ var compareAsm = (function () {
     -0x0ffffffff, -0x100000000, 0x100000001,
     // Boundaries of double
     Number.MIN_VALUE, -Number.MIN_VALUE,
-    Number.MAX_VALUE, -Number.MAX_VALUE
+    Number.MAX_VALUE, -Number.MAX_VALUE,
+    // Added from test-math.js
+    Number.MIN_SAFE_INTEGER, -Number.MIN_SAFE_INTEGER,
+    -(2 ** 53 - 2), -(2 ** 53), -(2 ** 53 + 2),
+    Number.MAX_SAFE_INTEGER, -Number.MAX_SAFE_INTEGER,
+    (2 ** 53) - 2, (2 ** 53), (2 ** 53) + 2,
+    BigInt(Number.MIN_SAFE_INTEGER), BigInt(-Number.MIN_SAFE_INTEGER),
+    BigInt(Number.MAX_SAFE_INTEGER), BigInt(-Number.MAX_SAFE_INTEGER),
+    BigInt(Number.MAX_VALUE), BigInt(-Number.MAX_VALUE),
+    -0n, 0n,
+    BigInt(0), BigInt(-0),
+    -1n, 1n,
+    BigInt(1), BigInt(-1)
   ];
   var asmvalsLen = asmvals.length;
 
