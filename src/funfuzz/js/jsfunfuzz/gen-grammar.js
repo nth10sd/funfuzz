@@ -1400,6 +1400,14 @@ function makeNumber (d, b) { /* eslint-disable-line require-jsdoc */
       "-(2**53-2)", "-(2**53)", "-(2**53+2)",
       "Number.MAX_SAFE_INTEGER", "-Number.MAX_SAFE_INTEGER",
       "(2**53)-2", "(2**53)", "(2**53)+2",
+      // BigInt added from test-math.js
+      "BigInt(Number.MIN_SAFE_INTEGER)", "BigInt(-Number.MIN_SAFE_INTEGER)",
+      "BigInt(Number.MAX_SAFE_INTEGER)", "BigInt(-Number.MAX_SAFE_INTEGER)",
+      "BigInt(Number.MAX_VALUE)", "BigInt(-Number.MAX_VALUE)",
+      "-0n", "0n",
+      "BigInt(0)", "BigInt(-0)",
+      "-1n", "1n",
+      "BigInt(1)", "BigInt(-1)",
       // See bug 1350097
       "0.000000000000001", "1.7976931348623157e308"
     ]);
@@ -1764,6 +1772,15 @@ function makeShapeyValue (d, b) { /* eslint-disable-line require-jsdoc */
       "-(2**53-2)", "-(2**53)", "-(2**53+2)",
       "Number.MAX_SAFE_INTEGER", "-Number.MAX_SAFE_INTEGER",
       "(2**53)-2", "(2**53)", "(2**53)+2",
+
+      // BigInt added from test-math.js
+      "BigInt(Number.MIN_SAFE_INTEGER)", "BigInt(-Number.MIN_SAFE_INTEGER)",
+      "BigInt(Number.MAX_SAFE_INTEGER)", "BigInt(-Number.MAX_SAFE_INTEGER)",
+      "BigInt(Number.MAX_VALUE)", "BigInt(-Number.MAX_VALUE)",
+      "-0n", "0n",
+      "BigInt(0)", "BigInt(-0)",
+      "-1n", "1n",
+      "BigInt(1)", "BigInt(-1)",
 
       // See bug 1350097 - 1.79...e308 is the largest (by module) finite number
       "0.000000000000001", "1.7976931348623157e308"

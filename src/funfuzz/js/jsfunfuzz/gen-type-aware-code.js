@@ -384,9 +384,12 @@ var makeEvilCallback;
     { w: 2, v: function (d, b) { return `${m("f")}(${m()});`; } },
 
     // v: Primitive
-    { w: 2, v: function (d, b) { return assign(d, b, "v", Random.index(["4", "4.2", "NaN", "0", "-0", "Infinity", "-Infinity"])); } },
+    // Use bigIntVals and minMaxVals, but only after whole structure changes, else move them up
+    { w: 2, v: function (d, b) { return assign(d, b, "v", Random.index(["4", "4.2", "NaN", "0", "-0", "Infinity", "-Infinity", "0n", "-0n"])); } },
     { w: 1, v: function (d, b) { return assign(d, b, "v", `new Number(${Random.index(["4", "4.2", "NaN", "0", "-0", "Infinity", "-Infinity"])})`); } },
     { w: 1, v: function (d, b) { return assign(d, b, "v", `new Number(${m()})`); } },
+    { w: 1, v: function (d, b) { return assign(d, b, "v", `BigInt(${Random.index(["4", "0", "-0", "0n", "-0n"])})`); } },
+    { w: 1, v: function (d, b) { return assign(d, b, "v", `BigInt(${m()})`); } },
     { w: 1, v: function (d, b) { return assign(d, b, "v", makeBoolean(d, b)); } },
     { w: 2, v: function (d, b) { return assign(d, b, "v", Random.index(["undefined", "null", "true", "false"])); } },
 
