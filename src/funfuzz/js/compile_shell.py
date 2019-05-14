@@ -346,9 +346,16 @@ def cfgBin(shell):  # pylint: disable=invalid-name,missing-param-doc,missing-rai
     if shell.build_opts.enable32 and platform.system() == "Linux":
         # 32-bit shell on 32/64-bit x86 Linux
         cfg_env["PKG_CONFIG_LIBDIR"] = "/usr/lib/pkgconfig"
-        # apt-get `libc6-dev-i386 g++-multilib` first, if on 64-bit Linux. (no matter Clang or GCC)
-        cfg_env["CC"] = f"clang -m32 {SSE2_FLAGS}"
-        cfg_env["CXX"] = f"clang++ -m32 {SSE2_FLAGS}"
+        if hg_helpers.existsAndIsAncestor(shell.get_repo_dir(),
+                                          shell.get_hg_hash(),
+                                          "parents(e1cac03485d9949c73d5ed6f703dac189422b913)"):
+            # m-c rev 301874:e1cac03485d9949c73d5ed6f703dac189422b913
+            # Fx50 is the first rev that works with Clang 6.0 on Ubuntu 18.04
+            cfg_env["CC"] = f"gcc -m32 {SSE2_FLAGS}"
+            cfg_env["CXX"] = f"g++ -m32 {SSE2_FLAGS}"
+        else:
+            cfg_env["CC"] = f"clang -m32 {SSE2_FLAGS}"
+            cfg_env["CXX"] = f"clang++ -m32 {SSE2_FLAGS}"
         cfg_cmds.append("sh")
         cfg_cmds.append(str(shell.get_js_cfg_path()))
         cfg_cmds.append("--target=i686-pc-linux")
@@ -670,6 +677,17 @@ def obtainShell(shell, updateToRev=None, updateLatestTxt=False):  # pylint: disa
         if shell.build_opts.patch_file:
             hg_helpers.patch_hg_repo_with_mq(shell.build_opts.patch_file, shell.get_repo_dir())
 
+        if (platform.system() == "Linux" and
+                parse_version(subprocess.run(["sed", "--version"], check=True, stdout=subprocess.PIPE)
+                              .stdout.decode("utf-8", errors="replace").split()[3])
+                >= parse_version("4.3") and
+                hg_helpers.existsAndIsAncestor(shell.get_repo_dir(),
+                                               shell.get_hg_hash(),
+                                               "parents(ebcbf47a83e7d3b89460cf1c991b6be5a79a967b)")):
+            print("Patching for Linux systems with sed >= 4.3 ...", flush=True)
+            sm_compile_helpers.icu_m4_replace(Path(shell.get_repo_dir()))  # Patch the icu.m4 file
+            print("Patching completed.", flush=True)
+
         cfgJsCompile(shell)
         if platform.system() == "Windows":
             sm_compile_helpers.verify_full_win_pageheap(shell.get_shell_cache_js_bin_path())
@@ -690,6 +708,17 @@ def obtainShell(shell, updateToRev=None, updateLatestTxt=False):  # pylint: disa
             s3cache_obj.uploadFileToS3(f"{shell.get_shell_cache_js_bin_path()}.busted")
         raise
     finally:
+        if (platform.system() == "Linux" and
+                parse_version(subprocess.run(["sed", "--version"], check=True, stdout=subprocess.PIPE)
+                              .stdout.decode("utf-8", errors="replace").split()[3])
+                >= parse_version("4.3") and
+                hg_helpers.existsAndIsAncestor(shell.get_repo_dir(),
+                                               shell.get_hg_hash(),
+                                               "parents(ebcbf47a83e7d3b89460cf1c991b6be5a79a967b)")):
+            print("Undo-ing patch for Linux systems with sed >= 4.3 ...", flush=True)
+            sm_compile_helpers.icu_m4_undo(Path(shell.get_repo_dir()))  # Undo the icu.m4 patch
+            print("Undo completed.", flush=True)
+
         if shell.build_opts.patch_file:
             hg_helpers.qpop_qrm_applied_patch(shell.build_opts.patch_file, shell.get_repo_dir())
 

@@ -15,6 +15,7 @@ import subprocess
 
 from lithium.interestingness.utils import env_with_path
 
+from ..util import hg_helpers
 from ..util import subprocesses as sps
 
 ASAN_ERROR_EXIT_CODE = 77
@@ -201,9 +202,17 @@ def verifyBinary(sh):  # pylint: disable=invalid-name,missing-param-doc,missing-
 
     assert queryBuildConfiguration(binary, "more-deterministic") == sh.build_opts.enableMoreDeterministic
     assert queryBuildConfiguration(binary, "asan") == sh.build_opts.enableAddressSanitizer
-    assert queryBuildConfiguration(binary, "profiling") != sh.build_opts.disableProfiling
     if platform.machine() == "x86_64":
         assert (queryBuildConfiguration(binary, "arm-simulator") and
                 sh.build_opts.enable32) == sh.build_opts.enableSimulatorArm32
-        assert (queryBuildConfiguration(binary, "arm64-simulator") and not
-                sh.build_opts.enable32) == sh.build_opts.enableSimulatorArm64
+
+    # Fx41 250632:5f9e24957f2d85d8a84d07f9e430792c68318213 added the arm64-simulator entry in getBuildConfiguration.
+    if not hg_helpers.existsAndIsAncestor(sh.get_repo_dir(),
+                                          sh.get_hg_hash(),
+                                          "parents(5f9e24957f2d85d8a84d07f9e430792c68318213)"):
+        if platform.machine() == "x86_64":
+            assert (queryBuildConfiguration(binary, "arm64-simulator") and not
+                    sh.build_opts.enable32) == sh.build_opts.enableSimulatorArm64
+    # Note that we should test whether a shell has profiling turned on or not.
+    # m-c rev 324836:800a887c705e02042a53d9093e9c4feb4a4c97cb turned profiling on by default, so once this is beyond the
+    # earliest known working revision, we can probably test it here.
