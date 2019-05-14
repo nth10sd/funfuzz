@@ -133,7 +133,7 @@ def known_broken_ranges(options):  # pylint: disable=missing-param-doc,missing-r
     return skips
 
 
-def earliest_known_working_rev(_options, flags, skip_revs):  # pylint: disable=missing-param-doc,missing-return-doc
+def earliest_known_working_rev(options, flags, skip_revs):  # pylint: disable=missing-param-doc,missing-return-doc
     # pylint: disable=missing-return-type-doc,missing-type-doc,too-many-branches,too-complex,too-many-statements
     """Return a revset which evaluates to the first revision of the shell that compiles with |options|
     and runs jsfunfuzz successfully with |flags|."""
@@ -185,8 +185,40 @@ def earliest_known_working_rev(_options, flags, skip_revs):  # pylint: disable=m
         required.append("b1dc87a94262c1bf2747d2bf560e21af5deb3174")  # m-c 387188 Fx58
     if cpu_count_flag:  # 1st w/--cpu-count=<NUM>, see bug 1206770
         required.append("1b55231e6628e70f0c2ee2b2cb40a1e9861ac4b4")  # m-c 380023 Fx57
-    # 1st w/ revised template literals, see bug 1317375
-    required.append("bb868860dfc35876d2d9c421c037c75a4fb9b3d2")  # m-c 330353 Fx53
+    if options.disableProfiling:  # 1st w/ --disable-profiling, see bug 1321065
+        required.append("800a887c705e02042a53d9093e9c4feb4a4c97cb")  # m-c 324836 Fx53
+    if "--cache-ir-stubs=on" in flags or \
+            "--cache-ir-stubs=off" in flags:  # 1st w/--cache-ir-stubs=on, see bug 1292659
+        required.append("1c5b92144e1e3707d4c19bfe5fafc90ceae886d1")  # m-c 308931 Fx51
+    if platform.machine() == "aarch64":  # 1st w/ working aarch64 builds, see bug 1286207
+        required.append("2f727a828ea03e04c3e84e986af359b8091a4b35")  # m-c 304669 Fx50
+    if options.enableAddressSanitizer:  # 1st w/ working ASan builds in Ubuntu 18.04, see bug 1264534
+        required.append("e1cac03485d9949c73d5ed6f703dac189422b913")  # m-c 301874 Fx50
+    if "--ion-pgo=on" in flags or "--ion-pgo=off" in flags:  # 1st w/--ion-pgo=on, see bug 1209515
+        required.append("b0a0ff5fa705a0906c00f76fee07b913ab6d42ed")  # m-c 272274 Fx45
+    if options.enableSimulatorArm64:  # 1st w/ stable --enable-simulator=arm64, see bug 984018
+        required.append("80a506f7caa70c48be893436a9e24338e02ab1cf")  # m-c 264933 Fx44
+    if "--ion-sincos=on" in flags or "--ion-sincos=off" in flags:  # 1st w/--ion-sincos=on, see bug 984018
+        required.append("3dec2b9352954b8acd9abb4f0d8cd6898da90d9d")  # m-c 262544 Fx43
+    if "--ion-instruction-reordering=on" in flags or \
+            "--ion-instruction-reordering=off" in flags:  # 1st w/--ion-instruction-reordering=on, see bug 1195545
+        required.append("59d2f2e62420b7968c2cf96a3b623987654e5366")  # m-c 259672 Fx43
+    if options.enableSimulatorArm32:  # 1st w/--enable-simulator=arm, see bug 1173992
+        required.append("25e99bc12482eb4a72abc512bbbe1aecc61afcfd")  # m-c 249239 Fx41
+    if "--ion-regalloc=testbed" in flags:  # 1st w/--ion-regalloc=testbed, see bug 1170840
+        required.append("47e92bae09fd7578e204dc77b302460a3c22262b")  # m-c 248962 Fx41
+    if '--execute=setJitCompilerOption("ion.forceinlineCaches",1)' in flags:  # 1st w/ this flag, see bug 923717
+        required.append("ea9608e33abe5020f711b4e718d13f19258ca295")  # m-c 247709 Fx41
+    if "--no-unboxed-objects" in flags:  # 1st w/--no-unboxed-objects, see bug 1162199
+        required.append("322487136b28a0c136642d39b8fa7091f1c55dee")  # m-c 244297 Fx41
+    if "--ion-extra-checks" in flags:  # 1st w/--ion-extra-checks, see bug 1139152
+        required.append("cdf93416b39aa31381ec02733954068b234c1672")  # m-c 234228 Fx39
+    if "--no-cgc" in flags:  # 1st w/--no-cgc, see bug 1126769 and see bug 1129233
+        required.append("b63d7e80709ab25a49c7d74a00434d317d6e0475")  # m-c 227705 Fx38
+    if "--enable-avx" in flags or "--no-avx" in flags:  # 1st w/--enable-avx, see bug 1118235
+        required.append("5e6e959f0043d20e9f93325c385327a29947d1e4")  # m-c 223959 Fx38
+    # 1st w/ successful GCC 5.2.x builds on Ubuntu 15.10 onwards
+    required.append("bcacb5692ad902fc0ec6ebea2ad382a8a3fd5183")  # m-c 222786 Fx37
 
     return f"first(({common_descendants(required)}) - ({skip_revs}))"
 
