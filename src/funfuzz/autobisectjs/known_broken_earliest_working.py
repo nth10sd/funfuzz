@@ -36,6 +36,16 @@ def known_broken_ranges(options):  # pylint: disable=missing-param-doc,missing-r
     # ANCIENT FIXME: It might make sense to avoid (or note) these in checkBlameParents.
 
     skips = [
+        # Fx38, broken spidermonkey
+        hgrange("7c25be97325d96eeb04940e8b4e2559787310319", "d426154dd31d97474e2c240c55995cd6506f5c47"),
+        # Fx39, broken spidermonkey
+        hgrange("da286f0f7a49dfcdffa89e254afdc1b8b0b75201", "62fecc6ab96e72c0958e8ebda798700ff431a8ae"),
+        # Fx41, broken spidermonkey
+        hgrange("8a416fedec44d5238cbdc9f1c1970d4e28a98163", "7f9252925e262fc05ba37df6c875abf9012fd953"),
+        # Fx44, broken spidermonkey
+        hgrange("3bcc3881b95d119b3f554a57d994e3f3755409f7", "c609df6d3895e655dc6ca85241bbad0ba1de60ef"),
+        # Fx52, broken spidermonkey
+        hgrange("d3a026933bce3d55873dada68b18eec2ecde58d0", "5fa834fe9b96d1b6b1cf99d14335b0beb1bd3811"),
         # Fx60, broken spidermonkey
         hgrange("4c72627cfc6c2dafb4590637fe1f3b5a24e133a4", "926f80f2c5ccaa5b0374b48678d62c304cbc9a68"),
         # Fx63, broken spidermonkey
@@ -58,6 +68,8 @@ def known_broken_ranges(options):  # pylint: disable=missing-param-doc,missing-r
 
     if platform.system() == "Linux":
         skips.extend([
+            # Fx41, clang failure - probably recent versions of GCC as well, see bug 1140482
+            hgrange("5232dd059c11090c118ca413f60b22822823b2c3", "ed98e1b9168d9a0629b5ab96f897613472181c0e"),
             # Fx56-57, failure specific to GCC 5 (and probably earlier) - supposedly works on GCC 6, see bug 1386011
             hgrange("e94dceac80907abd4b579ddc8b7c202bbf461ec7", "516c01f62d840744648768b6fac23feb770ffdc1"),
         ])
@@ -90,6 +102,8 @@ def known_broken_ranges(options):  # pylint: disable=missing-param-doc,missing-r
 
     if not options.enableDbg:
         skips.extend([
+            # Fx46, broken opt builds w/ --enable-gczeal
+            hgrange("a048c55e1906f380a9f95d8f1dfa8308c37629cd", "ddaa87cfd7fafd303ecfa84c324af09804676932"),
             # Fx58-59, broken opt builds w/ --enable-gczeal
             hgrange("c5561749c1c64793c31699d46bbf12cc0c69815c", "f4c15a88c937e8b3940f5c1922142a6ffb137320"),
             # Fx66, broken opt builds w/ --enable-gczeal
@@ -98,12 +112,20 @@ def known_broken_ranges(options):  # pylint: disable=missing-param-doc,missing-r
 
     if options.enableMoreDeterministic:
         skips.extend([
+            # Fx40, see bug 1149739
+            hgrange("1d672188b8aabc4e7b6867e8fdc8a6868a781655", "ea7dabcd215ec8a379c53f35e75e1e18bc8389d7"),
             # Fx68, see bug 1542980
             hgrange("427b854cdb1c47ce6a643f83245914d66dca4382", "4c4e45853808229f832e32f6bcdbd4c92a72b13b"),
         ])
 
     if options.enableSimulatorArm32:
         skips.extend([
+            # Fx43, broken 32-bit ARM-simulator builds
+            hgrange("3a580b48d1adca56f74b2a7491b468af3e70bee8", "20c9570b07342a00d881cfb606695d1608626b16"),
+            # Fx45, broken 32-bit ARM-simulator builds
+            hgrange("f35d1107fe2eabc3128c9430724fa730c3336fd5", "bdf975ad2fcd2eafc67aa9100971c5a096bd2532"),
+            # Fx50, broken 32-bit ARM-simulator builds
+            hgrange("6c37be9cee51e14e1f04ebfb96ab58cc5113c477", "4548ba932bde3067a722b267f9b1e43256740d4e"),
             # Fx57-61, broken 32-bit ARM-simulator builds
             hgrange("284002382c21842a7ebb39dcf53d5d34fd3f7692", "05669ce25b032bf83ca38e082e6f2c1bf683ed19"),
         ])
