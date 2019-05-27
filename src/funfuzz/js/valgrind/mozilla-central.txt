@@ -1,0 +1,5 @@
+{
+   Ignore "Conditional jump or move depends on uninitialised value" errors for now
+   Memcheck:Cond
+   obj:*
+}
