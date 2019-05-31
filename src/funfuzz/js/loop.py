@@ -144,7 +144,7 @@ def many_timed_runs(target_time, wtmp_dir, args, collector, ccoverage):
     options = parseOpts(args)
     startTime = time.time()  # pylint: disable=invalid-name
 
-    if options.repo.is_dir():
+    if not options.repo.is_dir():
         regressionTestPrologue = makeRegressionTestPrologue(options.repo)  # pylint: disable=invalid-name
     else:
         regressionTestPrologue = ""  # pylint: disable=invalid-name
