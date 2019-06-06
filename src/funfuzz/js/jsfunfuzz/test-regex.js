@@ -4,7 +4,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* exported makeRegex, makeRegexUseBlock, makeRegexUseExpr */
-/* global makeExpr, makeFunction, POTENTIAL_MATCHES, Random, regexPattern, rnd, simpleSource */
+/* global makeClass, makeExpr, makeFunction, POTENTIAL_MATCHES, Random, regexPattern, rnd, simpleSource */
 
 /* ************* *
  * USING REGEXPS *
@@ -72,10 +72,11 @@ function makeRegex (d, b) { /* eslint-disable-line require-jsdoc */
 }
 
 function makeReplacement (d, b) { /* eslint-disable-line require-jsdoc */
-  switch (rnd(3)) {
+  switch (rnd(4)) {
     /* eslint-disable no-multi-spaces */
     case 0:  return Random.index(["''", "'x'", "'\\u0341'"]);
     case 1:  return makeExpr(d, b);
+    case 2:  return makeClass(d, b);
     default: return makeFunction(d, b);
     /* eslint-enable no-multi-spaces */
   }
