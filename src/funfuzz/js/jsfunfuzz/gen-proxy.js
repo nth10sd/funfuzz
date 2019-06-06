@@ -4,7 +4,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* exported makeProxyHandler */
-/* global bp:writable, makeExpr, makeFunction, Random, rnd, TOTALLY_RANDOM, totallyRandom */
+/* global bp:writable, makeClass, makeExpr, makeFunction, Random, rnd, TOTALLY_RANDOM, totallyRandom */
 
 // In addition, can always use "undefined" or makeFunction
 // Forwarding proxy code based on http://wiki.ecmascript.org/doku.php?id=harmony:proxies "Example: a no-op forwarding proxy"
@@ -103,11 +103,12 @@ function makeProxyHandlerFactory (d, b) { /* eslint-disable-line require-jsdoc *
       if (proxyHandlerProperties[p][preferred] && rnd(10) <= fidelity) {
         funText = proxyMunge(proxyHandlerProperties[p][preferred], p);
       } else {
-        switch (rnd(7)) {
+        switch (rnd(8)) {
           /* eslint-disable no-multi-spaces */
           case 0:  funText = makeFunction(d - 3, bp); break;
-          case 1:  funText = "undefined"; break;
-          case 2:  funText = "function() { throw 3; }"; break;
+          case 1:  funText = makeClass(d - 3, bp); break;
+          case 2:  funText = "undefined"; break;
+          case 3:  funText = "function() { throw 3; }"; break;
           default: funText = proxyMunge(proxyHandlerProperties[p][fallback], p);
           /* eslint-enable no-multi-spaces */
         }

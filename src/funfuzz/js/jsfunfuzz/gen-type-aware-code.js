@@ -4,10 +4,10 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* global builtinFunctions, builtinObjects, builtinProperties, loopCount, makeAsmJSFunction, makeAsmJSModule */
-/* global makeBoolean, makeExpr, makeFunction, makeFunctionBody, makeFunOnCallChain, makeGlobal, makeIterable */
-/* global makePropertyDescriptor, makePropertyName, makeRegex, makeRegexUseBlock, makeRegisterStompFunction */
-/* global makeScriptForEval, makeStatement, Random, rnd, simpleSource, typedArrayConstructors, uniqueVarName */
-/* global varBinder */
+/* global makeBoolean, makeClass, makeExpr, makeFunction, makeFunctionBody, makeFunOnCallChain, makeGlobal */
+/* global makeIterable, makePropertyDescriptor, makePropertyName, makeRegex, makeRegexUseBlock */
+/* global makeRegisterStompFunction, makeScriptForEval, makeStatement, Random, rnd, simpleSource */
+/* global typedArrayConstructors, uniqueVarName, varBinder */
 
 /* ******************* *
  * TEST BUILT-IN TYPES *
@@ -118,6 +118,7 @@ var makeEvilCallback;
     { w: 5, v: function (d, b) { return m("f"); } },
     { w: 3, v: makeCounterClosure },
     { w: 2, v: makeFunction },
+    { w: 1, v: makeClass },
     { w: 1, v: makeAsmJSModule },
     { w: 1, v: makeAsmJSFunction },
     { w: 1, v: makeRegisterStompFunction }
