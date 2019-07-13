@@ -213,12 +213,8 @@ def earliest_known_working_rev(options, flags, skip_revs):  # pylint: disable=mi
         required.append("322487136b28a0c136642d39b8fa7091f1c55dee")  # m-c 244297 Fx41
     if "--ion-extra-checks" in flags:  # 1st w/--ion-extra-checks, see bug 1139152
         required.append("cdf93416b39aa31381ec02733954068b234c1672")  # m-c 234228 Fx39
-    if "--no-cgc" in flags:  # 1st w/--no-cgc, see bug 1126769 and see bug 1129233
-        required.append("b63d7e80709ab25a49c7d74a00434d317d6e0475")  # m-c 227705 Fx38
-    if "--enable-avx" in flags or "--no-avx" in flags:  # 1st w/--enable-avx, see bug 1118235
-        required.append("5e6e959f0043d20e9f93325c385327a29947d1e4")  # m-c 223959 Fx38
-    # 1st w/ successful GCC 5.2.x builds on Ubuntu 15.10 onwards
-    required.append("bcacb5692ad902fc0ec6ebea2ad382a8a3fd5183")  # m-c 222786 Fx37
+    # 1st w/ successful Clang 8 builds on Ubuntu 18.04 onwards
+    required.append("514c806646611c56768c045aa54dc033594e2b70")  # m-c 233685 Fx39
 
     return f"first(({common_descendants(required)}) - ({skip_revs}))"
 
