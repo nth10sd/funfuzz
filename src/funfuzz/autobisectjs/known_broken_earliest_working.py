@@ -190,10 +190,10 @@ def earliest_known_working_rev(options, flags, skip_revs):  # pylint: disable=mi
     if "--cache-ir-stubs=on" in flags or \
             "--cache-ir-stubs=off" in flags:  # 1st w/--cache-ir-stubs=on, see bug 1292659
         required.append("1c5b92144e1e3707d4c19bfe5fafc90ceae886d1")  # m-c 308931 Fx51
+    if options.enableAddressSanitizer:  # 1st w/ working ASan builds in Ubuntu 18.04, see bug 1293419
+        required.append("5bf671f59015965d26ee9e7c9781caacc658b24f")  # m-c 308858 Fx51
     if platform.machine() == "aarch64":  # 1st w/ working aarch64 builds, see bug 1286207
         required.append("2f727a828ea03e04c3e84e986af359b8091a4b35")  # m-c 304669 Fx50
-    if options.enableAddressSanitizer:  # 1st w/ working ASan builds in Ubuntu 18.04, see bug 1264534
-        required.append("e1cac03485d9949c73d5ed6f703dac189422b913")  # m-c 301874 Fx50
     if "--ion-pgo=on" in flags or "--ion-pgo=off" in flags:  # 1st w/--ion-pgo=on, see bug 1209515
         required.append("b0a0ff5fa705a0906c00f76fee07b913ab6d42ed")  # m-c 272274 Fx45
     if options.enableSimulatorArm64:  # 1st w/ stable --enable-simulator=arm64, see bug 984018
