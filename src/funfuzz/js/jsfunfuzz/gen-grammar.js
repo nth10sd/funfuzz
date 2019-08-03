@@ -1671,11 +1671,11 @@ function randomUnitStringLiteral () { /* eslint-disable-line require-jsdoc */
   return s;
 }
 
-function maybeMakeTerm (d, b) { /* eslint-disable-line require-jsdoc */
+function maybeMakeTerm (d, b) { /* eslint-disable-line no-unused-vars,require-jsdoc */
   if (rnd(2)) { return makeTerm(d - 1, b); } else { return ""; }
 }
 
-function makeCrazyToken () { /* eslint-disable-line require-jsdoc */
+function makeCrazyToken () { /* eslint-disable-line no-unused-vars,require-jsdoc */
   if (rnd(3) === 0) {
     return String.fromCharCode(32 + rnd(128 - 32));
   }

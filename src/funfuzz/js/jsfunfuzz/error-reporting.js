@@ -40,7 +40,7 @@ function errorToString (e) { /* eslint-disable-line require-jsdoc */
   }
 }
 
-function errorstack () { /* eslint-disable-line require-jsdoc */
+function errorstack () { /* eslint-disable-line no-unused-vars, require-jsdoc */
   print("EEE");
   try {
     void ([].qwerty.qwerty);

@@ -128,7 +128,7 @@ function regexGrouped (prefix, dr, postfix) { /* eslint-disable-line require-jsd
   return [prefix + re + postfix, newStrings];
 }
 
-var letters = [
+var letters = [ /* eslint-disable-line no-unused-vars */
   "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
   "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
 ];
