@@ -310,7 +310,7 @@ function makeUseRegressionTest (d, b) { /* eslint-disable-line require-jsdoc */
     return "/* no regression tests found */";
   }
 
-  var maintest = regressionTestsRoot + Random.index(regressionTestList);
+  var maintest = regressionTestsRoot + Random.index(regressionTestList); /* eslint-disable-line no-undef */
   var files = regressionTestDependencies(maintest);
 
   var s = "";
@@ -391,10 +391,10 @@ function regressionTestDependencies (maintest) { /* eslint-disable-line require-
 
   if (rnd(3)) {
     // Include the chain of 'shell.js' files in their containing directories (starting from regressionTestsRoot)
-    for (var i = regressionTestsRoot.length; i < maintest.length; ++i) {
+    for (var i = regressionTestsRoot.length; i < maintest.length; ++i) { /* eslint-disable-line no-undef */
       if (maintest.charAt(i) === "/" || maintest.charAt(i) === "\\") {
         var shelljs = `${maintest.substr(0, i + 1)}shell.js`;
-        if (regressionTestList.indexOf(shelljs) !== -1) {
+        if (regressionTestList.indexOf(shelljs) !== -1) { /* eslint-disable-line no-undef */
           files.push(shelljs);
         }
       }
@@ -402,7 +402,7 @@ function regressionTestDependencies (maintest) { /* eslint-disable-line require-
 
     // Include prologue.js for jit-tests
     if (maintest.indexOf("jit-test") !== -1) {
-      files.push(`${libdir}prologue.js`);
+      files.push(`${libdir}prologue.js`); /* eslint-disable-line no-undef */
     }
 
     // Include whitelisted shell.js for some tests, e.g. non262/test262 ones
@@ -418,8 +418,8 @@ function regressionTestDependencies (maintest) { /* eslint-disable-line require-
 
     // Include web-platform-test-shims.js and testharness.js for streams tests
     if (maintest.indexOf("web-platform") !== -1) {
-      files.push(`${js_src_tests_dir}web-platform-test-shims.js`); /* eslint-disable-line camelcase */
-      files.push(`${w_pltfrm_res_dir}testharness.js`); /* eslint-disable-line camelcase */
+      files.push(`${js_src_tests_dir}web-platform-test-shims.js`); /* eslint-disable-line camelcase,no-undef */
+      files.push(`${w_pltfrm_res_dir}testharness.js`); /* eslint-disable-line camelcase,no-undef */
     }
   }
 
