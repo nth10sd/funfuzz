@@ -139,6 +139,7 @@ before_install:
       which rustc
       rustc --version
       npm --version
+      npm install babel-eslint
     fi
 install:
   # Already in venv, no need for --user
