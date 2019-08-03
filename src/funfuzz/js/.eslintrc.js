@@ -1,10 +1,12 @@
 module.exports = {
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 2020,
     "ecmaFeatures": {
       "jsx": true
     },
-    // "sourceType": "module"
+    "sourceType": "module",
+    "allowImportExportEverywhere": true
   },
 
   "env": {
@@ -175,6 +177,7 @@ module.exports = {
     "rest-spread-spacing": ["error", "never"],
     "semi": ["error", "always"],
     "semi-spacing": ["error", { "before": false, "after": true }],
+    "sort-imports": "error",
     "space-before-blocks": ["error", "always"],
     "space-before-function-paren": ["error", "always"],
     "space-in-parens": ["error", "never"],
@@ -194,11 +197,48 @@ module.exports = {
     "yield-star-spacing": ["error", "both"],
     "yoda": ["error", "never"],
 
+    // eslint-plugin-import rules have been adapted
+    "import/default": "error",
+    "import/dynamic-import-chunkname": "error",
     "import/export": "error",
+    "import/exports-last": "error",
+    "import/extensions": "error",
     "import/first": "error",
+    "import/group-exports": "error",
+    "import/max-dependencies": ["error", { "max": 20 }],
+    "import/named": "error",
+    "import/namespace": "error",
+    "import/newline-after-import": "error",
+    "import/no-absolute-path": "error",
+    "import/no-amd": "error",
+    "import/no-anonymous-default-export": "error",
+    "import/no-commonjs": "error",
+    "import/no-cycle": "error",
+    "import/no-default-export": "error",
+    "import/no-deprecated": "error",
     "import/no-duplicates": "error",
+    "import/no-dynamic-require": "error",
+    "import/no-extraneous-dependencies": "error",
+    "import/no-internal-modules": "off",
+    "import/no-mutable-exports": "off",
+    "import/no-named-as-default": "error",
+    "import/no-named-as-default-member": "error",
     "import/no-named-default": "error",
+    "import/no-named-export": "off",
+    "import/no-namespace": "error",
+    "import/no-nodejs-modules": "error",
+    "import/no-relative-parent-imports": "error",
+    "import/no-restricted-paths": "error",
+    "import/no-self-import": "error",
+    "import/no-unassigned-import": "error",
+    "import/no-unresolved": "error",
+    "import/no-unused-modules": "error",
+    "import/no-unused-modules": "error",
+    "import/no-useless-path-segments": "error",
     "import/no-webpack-loader-syntax": "error",
+    "import/order": "off",
+    "import/prefer-default-export": "off",
+    "import/unambiguous": "error",
 
     "node/no-deprecated-api": "error",
     "node/process-exit-as-throw": "error",
