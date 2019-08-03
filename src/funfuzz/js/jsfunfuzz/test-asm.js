@@ -145,7 +145,7 @@ function testAsmDifferential (stdlib, interior) { /* eslint-disable-line require
 }
 
 // Call this instead of start() to run asm-differential tests
-function startAsmDifferential () { /* eslint-disable-line require-jsdoc */
+function startAsmDifferential () { /* eslint-disable-line no-unused-vars,require-jsdoc */
   var asmFuzzSeed = Math.floor(Math.random() * Math.pow(2, 28));
   dumpln(`asmFuzzSeed: ${asmFuzzSeed}`);
   Random.init(asmFuzzSeed);
