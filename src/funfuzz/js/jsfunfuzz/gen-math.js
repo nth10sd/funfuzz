@@ -1,10 +1,20 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported makeMathFunction, NUM_MATH_FUNCTIONS */
-/* global directivePrologue, makeExpr, numericVals, Random, rnd, TOTALLY_RANDOM, totallyRandom */
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  TOTALLY_RANDOM,
+  totallyRandom
+} from "./mess-grammar";
+import {
+  directivePrologue,
+  makeExpr
+} from "./gen-grammar";
+import { numericVals } from "./test-math";
 
 const NUM_MATH_FUNCTIONS = 6;
 
@@ -128,3 +138,11 @@ function makeMathExpr (d, b, i) { /* eslint-disable-line require-jsdoc */
     /* eslint-enable no-multi-spaces */
   }
 }
+
+export {
+  NUM_MATH_FUNCTIONS,
+  binaryMathFunctions,
+  makeMathExpr,
+  makeMathFunction,
+  unaryMathFunctions
+};

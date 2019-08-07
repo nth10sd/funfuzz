@@ -3,15 +3,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported fuzzTestingFunctionsCtor */
-/* global makeFunction, makeId, oomAfterAllocations, oomAtAllocation */
-/* global Random, resetOOMFailure, rnd */
+import {
+  Random,
+  rnd
+} from "./random";
+import {
+  makeFunction,
+  makeId
+} from "../jsfunfuzz/gen-grammar";
 
 // Generate calls to SpiderMonkey "testing functions" for:
 // * testing that they do not cause assertions/crashes
 // * testing that they do not alter visible results (compare_jit with and without the call)
 
-function fuzzTestingFunctionsCtor (fGlobal) { /* eslint-disable-line require-jsdoc */
+export function fuzzTestingFunctionsCtor (fGlobal) { /* eslint-disable-line require-jsdoc */
   function numberOfInstructions () { return Math.floor(Random.ludOneTo(10000)); } /* eslint-disable-line require-jsdoc */
   function numberOfAllocs () { return Math.floor(Random.ludOneTo(500)); } /* eslint-disable-line require-jsdoc */
   function gcSliceSize () { return Math.floor(Random.ludOneTo(0x100000000)); } /* eslint-disable-line require-jsdoc */

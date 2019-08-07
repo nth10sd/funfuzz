@@ -1,10 +1,13 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported TOTALLY_RANDOM, totallyRandom */
-/* global print, Random, rnd */
+/* global print */
+
+import {
+  Random,
+  rnd
+} from "../shared/random";
 
 // Randomly ignore the grammar 1 in TOTALLY_RANDOM times we generate any grammar node.
 var TOTALLY_RANDOM = 1000;
@@ -61,3 +64,8 @@ function testEachMaker()
   }
 }
 */
+
+export {
+  TOTALLY_RANDOM,
+  totallyRandom
+};

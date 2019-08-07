@@ -1,11 +1,26 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported makeMathyFunAndTest, makeMathyFunRef, mathInitFCM */
-/* global errorToString, makeAsmJSFunction, makeMathFunction, makeMixedTypeArray, NUM_MATH_FUNCTIONS, print, Random */
-/* global rnd, TOTALLY_RANDOM, totallyRandom, uneval */
+/* global print, uneval */
+
+import {
+  NUM_MATH_FUNCTIONS,
+  makeMathFunction
+} from "./gen-math";
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  TOTALLY_RANDOM,
+  totallyRandom
+} from "./mess-grammar";
+import {
+  makeAsmJSFunction,
+  makeMixedTypeArray
+} from "./gen-grammar";
+import { errorToString } from "./error-reporting";
 
 var numericVals = [
   "1", "Math.PI", "42",
@@ -129,3 +144,10 @@ function makeMathyFunRef (d, b) { /* eslint-disable-line require-jsdoc */
 
   return `mathy${rnd(NUM_MATH_FUNCTIONS)}`;
 }
+
+export {
+  makeMathyFunAndTest,
+  makeMathyFunRef,
+  mathInitFCM,
+  numericVals
+};

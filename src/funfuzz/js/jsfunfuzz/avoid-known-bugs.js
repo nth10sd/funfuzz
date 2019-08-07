@@ -1,10 +1,14 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported whatToTest */
-/* global engine, ENGINE_JAVASCRIPTCORE, ENGINE_SPIDERMONKEY_TRUNK, gcIsQuiet, jsshell */
+import {
+  ENGINE_JAVASCRIPTCORE,
+  ENGINE_SPIDERMONKEY_TRUNK,
+  engine,
+  gcIsQuiet,
+  jsshell
+} from "./detect-engine";
 
 /* eslint-disable complexity, no-multi-spaces */
 function whatToTestSpidermonkeyTrunk (code) { /* eslint-disable-line require-jsdoc */
@@ -113,3 +117,5 @@ function unlikelyToHang (code) { /* eslint-disable-line require-jsdoc */
     && !(codeL.match(/for.*for.*gc/))
   ;
 }
+
+export { whatToTest };

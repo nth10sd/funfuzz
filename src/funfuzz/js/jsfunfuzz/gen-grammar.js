@@ -1,17 +1,68 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported linkedList, makeAsmJSFunction, makeAsmJSModule, strTimes */
-/* global allMethodNames, allPropertyNames, arrayBufferType, asmJSInterior, binaryMathFunctions, builtinFunctions */
-/* global builtinObjectNames, builtinProperties, cat, constructors, engine, ENGINE_JAVASCRIPTCORE, evalcx */
-/* global fuzzTestingFunctionsCtor, jsshell, js_src_tests_dir, libdir, loopCount, loopModulo, makeBuilderStatement */
-/* global makeEvilCallback, makeImmediateRecursiveCall, makeMathExpr, makeMathFunction, makeMathyFunAndTest */
-/* global makeMathyFunRef, makeProxyHandler, makeProxyHandlerFactory, makeRegex, makeRegexUseBlock, makeRegexUseExpr */
-/* global makeRegisterStompBody, oomTest, Random, read, regressionTestList, regressionTestsRoot, rnd, simpleSource */
-/* global stripSemicolon, TOTALLY_RANDOM, totallyRandom, unaryMathFunctions, uneval, UNTERMINATED_COMMENT */
-/* global w_pltfrm_res_dir, XPCNativeWrapper, xpcshell */
+/* global read, uneval */
+
+import {
+  ENGINE_JAVASCRIPTCORE,
+  engine,
+  jsshell,
+  loopCount,
+  loopModulo,
+  simpleSource,
+  xpcshell
+} from "./detect-engine";
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  TOTALLY_RANDOM,
+  totallyRandom
+} from "./mess-grammar";
+import {
+  UNTERMINATED_COMMENT,
+  cat,
+  stripSemicolon
+} from "./mess-tokens";
+import {
+  allMethodNames,
+  allPropertyNames,
+  builtinFunctions,
+  builtinObjectNames,
+  builtinProperties,
+  constructors
+} from "./built-in-constructors";
+import {
+  arrayBufferType,
+  makeBuilderStatement,
+  makeEvilCallback
+} from "./gen-type-aware-code";
+import {
+  binaryMathFunctions,
+  makeMathExpr,
+  makeMathFunction,
+  unaryMathFunctions
+} from "./gen-math";
+import {
+  makeMathyFunAndTest,
+  makeMathyFunRef
+} from "./test-math";
+import {
+  makeProxyHandler,
+  makeProxyHandlerFactory
+} from "./gen-proxy";
+import {
+  makeRegex,
+  makeRegexUseBlock,
+  makeRegexUseExpr
+} from "./test-regex";
+import { asmJSInterior } from "./gen-asm";
+import { fuzzTestingFunctionsCtor } from "../shared/testing-functions";
+import { makeImmediateRecursiveCall } from "./gen-recursion";
+import { makeRegisterStompBody } from "./gen-stomp-on-registers";
+import { recursiveFunctions } from "./gen-recursion";
 
 /* ************************ *
  * GRAMMAR-BASED GENERATION *
@@ -1029,12 +1080,13 @@ if (xpcshell) {
   ]);
 }
 
+var bp;
 function makeShapeyConstructor (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
   var argName = uniqueVarName();
   var t = rnd(4) ? "this" : argName;
   var funText = `function shapeyConstructor(${argName}){${directivePrologue()}`;
-  var bp = b.concat([argName]);
+  bp = b.concat([argName]);
 
   var nPropNames = rnd(6) + 1;
   var propNames = [];
@@ -1863,3 +1915,28 @@ function makeAsmJSFunction (d, b) { /* eslint-disable-line require-jsdoc */
   var interior = asmJSInterior(["ff"]);
   return `(function(stdlib, foreign, heap){ "use asm"; ${interior} })(this, {ff: ${makeFunction(d - 2, b)}}, new ${arrayBufferType()}(4096))`;
 }
+
+export {
+  bp,
+  directivePrologue,
+  makeAsmJSFunction,
+  makeAsmJSModule,
+  makeBoolean,
+  makeExpr,
+  makeFunction,
+  makeFunctionBody,
+  makeFunOnCallChain,
+  makeGlobal,
+  makeId,
+  makeIterable,
+  makeMixedTypeArray,
+  makePropertyDescriptor,
+  makePropertyName,
+  makeScript,
+  makeScriptForEval,
+  makeStatement,
+  strTimes,
+  typedArrayConstructors,
+  uniqueVarName,
+  varBinder
+};

@@ -1,10 +1,16 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported asmJSInterior */
-/* global makeExpr, makeStatement, Random, rnd, totallyRandom */
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  makeExpr,
+  makeStatement
+} from "./gen-grammar";
+import { totallyRandom } from "./mess-grammar";
 
 /* *********************** *
  * GENERATE ASM.JS MODULES *
@@ -360,3 +366,5 @@ function intLiteralRange (min, max) { /* eslint-disable-line require-jsdoc */
   var sign = val < 0 ? "-" : "";
   return `${sign}0x${Math.abs(val).toString(16)}`;
 }
+
+export { asmJSInterior };

@@ -1,40 +1,10 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported optionalTests */
-/* global count, disassemble, dumpln, engine, ENGINE_SPIDERMONKEY_TRUNK, foundABug, getBuildConfiguration */
-/* global nestingConsistencyTest, tryEnsureSanity, verbose */
-
-function optionalTests (f, code, wtt) { /* eslint-disable-line require-jsdoc */
-  if (count % 100 === 1) {
-    tryHalves(code);
-  }
-
-  if (count % 100 === 2 && engine === ENGINE_SPIDERMONKEY_TRUNK) {
-    try {
-      Reflect.parse(code);
-    } catch (e) {
-    }
-  }
-
-  if (count % 100 === 3 && f && typeof disassemble === "function") {
-    // It's hard to use the recursive disassembly in the comparator,
-    // but let's at least make sure the disassembler itself doesn't crash.
-    disassemble("-r", f);
-  }
-
-  if (0 && f && wtt.allowExec && engine === ENGINE_SPIDERMONKEY_TRUNK) {
-    testExpressionDecompiler(code);
-    tryEnsureSanity();
-  }
-
-  if (count % 100 === 6 && f && wtt.allowExec && wtt.expectConsistentOutput && wtt.expectConsistentOutputAcrossIter
-    && engine === ENGINE_SPIDERMONKEY_TRUNK && getBuildConfiguration()["more-deterministic"]) {
-    nestingConsistencyTest(code);
-  }
-}
+import { dumpln } from "./detect-engine";
+import { foundABug } from "./error-reporting";
+import { verbose } from "./driver";
 
 function testExpressionDecompiler (code) { /* eslint-disable-line require-jsdoc */
   var fullCode = `(function() { try { \n${code}\n; throw 1; } catch(exx) { this.nnn.nnn } })()`;
@@ -76,3 +46,8 @@ function tryHalves (code) { /* eslint-disable-line require-jsdoc */
     if (verbose) { dumpln(`Second half compilation error: ${e}`); }
   }
 }
+
+export {
+  testExpressionDecompiler,
+  tryHalves
+};

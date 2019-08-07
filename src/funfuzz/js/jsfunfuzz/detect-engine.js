@@ -1,11 +1,11 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported gcIsQuiet, loopCount, loopModulo, readline, xpcshell */
-/* global debug, gc, print, readline:writable, rnd, uneval:writable, verifyprebarriers, wasmIsSupported */
-/* XPCNativeWrapper */
+/* exported readline */
+/* global gc, print, readline:writable, uneval:writable */
+
+import { rnd } from "../shared/random";
 
 // jsfunfuzz is best run in a command-line shell.  It can also run in
 // a web browser, but you might have trouble reproducing bugs that way.
@@ -15,8 +15,8 @@ var ENGINE_SPIDERMONKEY_TRUNK = 1;
 var ENGINE_JAVASCRIPTCORE = 4;
 
 var engine = ENGINE_UNKNOWN;
-var jsshell = (typeof window === "undefined"); /* eslint-disable-line no-undef */
-var xpcshell = jsshell && (typeof Components === "object"); /* eslint-disable-line no-undef */
+var jsshell = (typeof window === "undefined");
+var xpcshell = jsshell && (typeof Components === "object");
 var dumpln;
 var printImportant;
 
@@ -32,7 +32,7 @@ if (typeof verifyprebarriers === "function") {
 
   // Avoid accidentally waiting for user input that will never come.
   readline = function () {};
-} else if (typeof XPCNativeWrapper === "function") { /* eslint-disable-line no-undef */
+} else if (typeof XPCNativeWrapper === "function") {
   // e.g. xpcshell or firefox
   engine = ENGINE_SPIDERMONKEY_TRUNK;
 } else if (typeof debug === "function") {
@@ -75,3 +75,17 @@ var haveRealUneval = (typeof uneval === "function");
 if (!haveRealUneval) { uneval = simpleSource; }
 
 if (engine === ENGINE_UNKNOWN) { printImportant("Targeting an unknown JavaScript engine!"); } else if (engine === ENGINE_SPIDERMONKEY_TRUNK) { printImportant("Targeting SpiderMonkey / Gecko (trunk)."); } else if (engine === ENGINE_JAVASCRIPTCORE) { printImportant("Targeting JavaScriptCore / WebKit."); }
+
+export {
+  ENGINE_JAVASCRIPTCORE,
+  ENGINE_SPIDERMONKEY_TRUNK,
+  dumpln,
+  engine,
+  gcIsQuiet,
+  jsshell,
+  loopCount,
+  loopModulo,
+  printImportant,
+  simpleSource,
+  xpcshell
+};

@@ -3,8 +3,19 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported makeRegex, makeRegexUseBlock, makeRegexUseExpr */
-/* global makeExpr, makeFunction, POTENTIAL_MATCHES, Random, regexPattern, rnd, simpleSource */
+import {
+  POTENTIAL_MATCHES,
+  regexPattern
+} from "./gen-regex";
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  makeExpr,
+  makeFunction
+} from "./gen-grammar";
+import { simpleSource } from "./detect-engine";
 
 /* ************* *
  * USING REGEXPS *
@@ -80,3 +91,9 @@ function makeReplacement (d, b) { /* eslint-disable-line require-jsdoc */
     /* eslint-enable no-multi-spaces */
   }
 }
+
+export {
+  makeRegex,
+  makeRegexUseBlock,
+  makeRegexUseExpr
+};

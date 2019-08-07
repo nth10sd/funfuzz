@@ -1,10 +1,13 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported cat, stripSemicolon */
-/* global dumpln, Random, rnd, totallyRandom */
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import { dumpln } from "./detect-engine";
+import { totallyRandom } from "./mess-grammar";
 
 // Each input to |cat| should be a token or so, OR a bigger logical piece (such as a call to makeExpr).  Smaller than a token is ok too ;)
 
@@ -118,3 +121,9 @@ function stripSemicolon (c) { /* eslint-disable-line require-jsdoc */
   var len = c.length;
   if (c.charAt(len - 1) === ";") { return c.substr(0, len - 1); } else { return c; }
 }
+
+export {
+  UNTERMINATED_COMMENT,
+  cat,
+  stripSemicolon
+};

@@ -1,10 +1,17 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported makeImmediateRecursiveCall */
-/* global makeExpr, makeMixedTypeArray, makeStatement, Random, rnd, uniqueVarName */
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  makeExpr,
+  makeMixedTypeArray,
+  makeStatement,
+  uniqueVarName
+} from "./gen-grammar";
 
 /*
 David Anderson suggested creating the following recursive structures:
@@ -108,7 +115,7 @@ function singleRecursionDepth (d, b) { /* eslint-disable-line require-jsdoc */
   }
 })();
 
-function makeImmediateRecursiveCall (d, b, cheat1, cheat2) { /* eslint-disable-line require-jsdoc */
+export function makeImmediateRecursiveCall (d, b, cheat1, cheat2) { /* eslint-disable-line require-jsdoc */
   if (rnd(10) !== 0) { return "(4277)"; }
 
   var a = (cheat1 == null) ? Random.index(recursiveFunctions) : recursiveFunctions[cheat1];

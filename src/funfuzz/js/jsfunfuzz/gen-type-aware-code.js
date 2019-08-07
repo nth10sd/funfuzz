@@ -1,13 +1,43 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global builtinFunctions, builtinObjects, builtinProperties, loopCount, makeAsmJSFunction, makeAsmJSModule */
-/* global makeBoolean, makeExpr, makeFunction, makeFunctionBody, makeFunOnCallChain, makeGlobal, makeIterable */
-/* global makePropertyDescriptor, makePropertyName, makeRegex, makeRegexUseBlock, makeRegisterStompFunction */
-/* global makeScriptForEval, makeStatement, Random, rnd, simpleSource, typedArrayConstructors, uniqueVarName */
-/* global varBinder */
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  builtinFunctions,
+  builtinObjects,
+  builtinProperties
+} from "./built-in-constructors";
+import {
+  loopCount,
+  simpleSource
+} from "./detect-engine";
+import {
+  makeAsmJSFunction,
+  makeAsmJSModule,
+  makeBoolean,
+  makeExpr,
+  makeFunOnCallChain,
+  makeFunction,
+  makeFunctionBody,
+  makeGlobal,
+  makeIterable,
+  makePropertyDescriptor,
+  makePropertyName,
+  makeScriptForEval,
+  makeStatement,
+  typedArrayConstructors,
+  uniqueVarName,
+  varBinder
+} from "./gen-grammar";
+import {
+  makeRegex,
+  makeRegexUseBlock
+} from "./test-regex";
+import { makeRegisterStompFunction } from "./gen-stomp-on-registers";
 
 /* ******************* *
  * TEST BUILT-IN TYPES *
@@ -443,3 +473,9 @@ function infrequentCondition (v, n) { /* eslint-disable-line require-jsdoc */
 var arrayBufferType = (typeof SharedArrayBuffer !== "undefined") ?
   function () { return rnd(2) ? "SharedArrayBuffer" : "ArrayBuffer"; } :
   function () { return "ArrayBuffer"; };
+
+export {
+  arrayBufferType,
+  makeBuilderStatement,
+  makeEvilCallback
+};

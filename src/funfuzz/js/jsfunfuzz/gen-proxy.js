@@ -3,8 +3,19 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported makeProxyHandler */
-/* global bp:writable, makeExpr, makeFunction, Random, rnd, TOTALLY_RANDOM, totallyRandom */
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  TOTALLY_RANDOM,
+  totallyRandom
+} from "./mess-grammar";
+import {
+  bp,
+  makeExpr,
+  makeFunction
+} from "./gen-grammar";
 
 // In addition, can always use "undefined" or makeFunction
 // Forwarding proxy code based on http://wiki.ecmascript.org/doku.php?id=harmony:proxies "Example: a no-op forwarding proxy"
@@ -128,3 +139,8 @@ function makeProxyHandler (d, b) { /* eslint-disable-line require-jsdoc */
 
   return `${makeProxyHandlerFactory(d, b)}(${makeExpr(d - 3, b)})`;
 }
+
+export {
+  makeProxyHandler,
+  makeProxyHandlerFactory
+};

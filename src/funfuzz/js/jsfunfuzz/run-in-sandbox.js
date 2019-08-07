@@ -1,17 +1,18 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported tryRunning, useSpidermonkeyShellSandbox */
-/* global dumpln, errorToString, evalcx, newGlobal, print, tryRunningDirectly, xpcshell */
+/* global evalcx, newGlobal */
+
+import { dumpln } from "./detect-engine";
+import { errorToString } from "./error-reporting";
 
 /* ***************** *
  * SANDBOXED RUNNING *
  * ***************** */
 
 // We support three ways to run generated code:
-// * useGeckoSandbox(), which uses Components.utils.Sandbox.
+// * useGeckoSandbox(), which uses Components.utils.Sandbox. (Moved to run.js)
 //    * In xpcshell, we always use this method, so we don't accidentally erase the hard drive.
 //
 // * useSpidermonkeyShellSandbox(), which uses evalcx() with newGlobal().
@@ -19,13 +20,6 @@
 //
 // * tryRunningDirectly(), which uses eval() or new Function().
 //   * This creates the most "interesting" testcases.
-
-var tryRunning;
-if (xpcshell) { // Adapted from ternary operator - this longer form helps reducers reduce better
-  tryRunning = useGeckoSandbox();
-} else {
-  tryRunning = tryRunningDirectly;
-}
 
 function fillShellSandbox (sandbox) { /* eslint-disable-line require-jsdoc */
   var safeFuns = [
@@ -75,7 +69,7 @@ function fillShellSandbox (sandbox) { /* eslint-disable-line require-jsdoc */
   return sandbox;
 }
 
-function useSpidermonkeyShellSandbox (sandboxType) { /* eslint-disable-line require-jsdoc */
+export function useSpidermonkeyShellSandbox (sandboxType) { /* eslint-disable-line require-jsdoc */
   var primarySandbox;
 
   switch (sandboxType) {
@@ -95,35 +89,6 @@ function useSpidermonkeyShellSandbox (sandboxType) { /* eslint-disable-line requ
       evalcx(code, primarySandbox);
     } catch (e) {
       dumpln(`Running in sandbox threw ${errorToString(e)}`);
-    }
-  };
-}
-
-// When in xpcshell,
-// * Run all testing in a sandbox so it doesn't accidentally wipe my hard drive.
-// * Test interaction between sandboxes with same or different principals.
-function newGeckoSandbox (n) { /* eslint-disable-line require-jsdoc */
-  var t = (typeof n === "number") ? n : 1;
-  var s = Components.utils.Sandbox(`http://x${t}.example.com/`); /* eslint-disable-line no-undef */
-
-  // Allow the sandbox to do a few things
-  s.newGeckoSandbox = newGeckoSandbox;
-  s.evalInSandbox = function (str, sbx) {
-    return Components.utils.evalInSandbox(str, sbx); /* eslint-disable-line no-undef */
-  };
-  s.print = function (str) { print(str); };
-
-  return s;
-}
-
-function useGeckoSandbox () { /* eslint-disable-line require-jsdoc */
-  var primarySandbox = newGeckoSandbox(0);
-
-  return function (f, code, wtt) {
-    try {
-      Components.utils.evalInSandbox(code, primarySandbox); /* eslint-disable-line no-undef */
-    } catch (e) {
-      // It might not be safe to operate on |e|.
     }
   };
 }

@@ -1,11 +1,97 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported newFun, tryItOut */
-/* global confused, count, dumpln, errorToString, failsToCompileInTry, gc, gczeal, jsStrictMode, optionalTests */
-/* global resetOOMFailure, strTimes, tryRunning, uneval, verbose, whatToTest */
+/* global disassemble, gc, gczeal, getBuildConfiguration, print, resetOOMFailure, uneval */
+
+import {
+  ENGINE_SPIDERMONKEY_TRUNK,
+  dumpln,
+  engine,
+  xpcshell
+} from "./detect-engine";
+import {
+  confused,
+  errorToString
+} from "./error-reporting";
+import {
+  count,
+  failsToCompileInTry,
+  verbose
+} from "./driver";
+import {
+  testExpressionDecompiler,
+  tryHalves
+} from "./test-misc";
+import { jsStrictMode } from "./preamble";
+import { nestingConsistencyTest } from "./test-consistency";
+import { strTimes } from "./gen-grammar";
+import { whatToTest } from "./avoid-known-bugs";
+
+var tryRunning;
+if (xpcshell) { // Adapted from ternary operator - this longer form helps reducers reduce better
+  tryRunning = useGeckoSandbox();
+} else {
+  tryRunning = tryRunningDirectly;
+}
+
+// When in xpcshell,
+// * Run all testing in a sandbox so it doesn't accidentally wipe my hard drive.
+// * Test interaction between sandboxes with same or different principals.
+function newGeckoSandbox (n) { /* eslint-disable-line require-jsdoc */
+  var t = (typeof n === "number") ? n : 1;
+  var s = Components.utils.Sandbox(`http://x${t}.example.com/`); /* eslint-disable-line no-undef */
+
+  // Allow the sandbox to do a few things
+  s.newGeckoSandbox = newGeckoSandbox;
+  s.evalInSandbox = function (str, sbx) {
+    return Components.utils.evalInSandbox(str, sbx); /* eslint-disable-line no-undef */
+  };
+  s.print = function (str) { print(str); };
+
+  return s;
+}
+
+function useGeckoSandbox () { /* eslint-disable-line require-jsdoc */
+  var primarySandbox = newGeckoSandbox(0);
+
+  return function (f, code, wtt) {
+    try {
+      Components.utils.evalInSandbox(code, primarySandbox); /* eslint-disable-line no-undef */
+    } catch (e) {
+      // It might not be safe to operate on |e|.
+    }
+  };
+}
+
+function optionalTests (f, code, wtt) { /* eslint-disable-line require-jsdoc */
+  if (count % 100 === 1) {
+    tryHalves(code);
+  }
+
+  if (count % 100 === 2 && engine === ENGINE_SPIDERMONKEY_TRUNK) {
+    try {
+      Reflect.parse(code);
+    } catch (e) {
+    }
+  }
+
+  if (count % 100 === 3 && f && typeof disassemble === "function") {
+    // It's hard to use the recursive disassembly in the comparator,
+    // but let's at least make sure the disassembler itself doesn't crash.
+    disassemble("-r", f);
+  }
+
+  if (0 && f && wtt.allowExec && engine === ENGINE_SPIDERMONKEY_TRUNK) {
+    testExpressionDecompiler(code);
+    tryEnsureSanity();
+  }
+
+  if (count % 100 === 6 && f && wtt.allowExec && wtt.expectConsistentOutput && wtt.expectConsistentOutputAcrossIter
+    && engine === ENGINE_SPIDERMONKEY_TRUNK && getBuildConfiguration()["more-deterministic"]) {
+    nestingConsistencyTest(code);
+  }
+}
 
 /* ******************* *
  * UNSANDBOXED RUNNING *
@@ -153,3 +239,10 @@ function tryItOut (code) { /* eslint-disable-line require-jsdoc */
 
   dumpln("");
 }
+
+export {
+  tryEnsureSanity,
+  tryItOut,
+  tryRunning,
+  tryRunningDirectly
+};

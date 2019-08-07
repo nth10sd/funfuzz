@@ -1,10 +1,14 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported confused, errorstack, errorToString, foundABug */
-/* global dumpln, jsshell, print, printImportant, quit */
+/* global print, quit */
+
+import {
+  dumpln,
+  jsshell,
+  printImportant
+} from "./detect-engine";
 
 function confused (s) { /* eslint-disable-line require-jsdoc */
   if (jsshell) {
@@ -46,3 +50,9 @@ function errorstack () { /* eslint-disable-line no-unused-vars, require-jsdoc */
     void ([].qwerty.qwerty);
   } catch (e) { print(e.stack); }
 }
+
+export {
+  confused,
+  foundABug,
+  errorToString
+};

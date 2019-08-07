@@ -3,7 +3,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global MersenneTwister19937, Utils */
+import { MersenneTwister19937 } from "./mersenne-twister";
 
 var Random = {
   twister: null,
@@ -146,3 +146,8 @@ var Random = {
 };
 
 function rnd (n) { return Random.number(n); } /* eslint-disable-line require-jsdoc */
+
+export {
+  Random,
+  rnd
+};

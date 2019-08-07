@@ -14,8 +14,6 @@
 // lines commented with // are additional comments in this JavaScript version.
 // before using this version, create at least one instance of MersenneTwister19937 class, and initialize the each state, given below in c comments, of all the instances.
 
-/* exported MersenneTwister19937 */
-
 /*
    A C-program for MT19937, with initialization improved 2002/1/26.
    Coded by Takuji Nishimura and Makoto Matsumoto.
@@ -55,7 +53,7 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
-function MersenneTwister19937 () { /* eslint-disable-line require-jsdoc */
+export function MersenneTwister19937 () { /* eslint-disable-line require-jsdoc */
   const N = 624;
   const M = 397;
   const MAG01 = new Int32Array([0, 0x9908b0df]);

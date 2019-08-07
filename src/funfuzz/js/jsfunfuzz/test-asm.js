@@ -1,11 +1,21 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported startAsmDifferential */
-/* global asmJSInterior, binaryMathFunctions, dumpln, foundABug, gc, isAsmJSModule */
-/* global makeRegisterStompFunction, print, Random, rnd, unaryMathFunctions, uneval */
+/* global gc, isAsmJSModule, print, uneval */
+
+import {
+  Random,
+  rnd
+} from "../shared/random";
+import {
+  binaryMathFunctions,
+  unaryMathFunctions
+} from "./gen-math";
+import { asmJSInterior } from "./gen-asm";
+import { dumpln } from "./detect-engine";
+import { foundABug } from "./error-reporting";
+import { makeRegisterStompFunction } from "./gen-stomp-on-registers";
 
 /* *********************** *
  * TEST ASM.JS CORRECTNESS *

@@ -1,10 +1,14 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported nestingConsistencyTest */
-/* global count, evalcx, errorToString, foundABug, newGlobal */
+/* global evalcx, newGlobal */
+
+import {
+  errorToString,
+  foundABug
+} from "./error-reporting";
+import { count } from "./driver";
 
 /* *************************** *
  * EXECUTION CONSISTENCY TESTS *
@@ -31,7 +35,7 @@ function sandboxResult (code, zone) { /* eslint-disable-line require-jsdoc */
   return resultStr;
 }
 
-function nestingConsistencyTest (code) { /* eslint-disable-line require-jsdoc */
+export function nestingConsistencyTest (code) { /* eslint-disable-line require-jsdoc */
   // Inspired by bug 676343
   // This only makes sense if |code| is an expression (or an expression followed by a semicolon). Oh well.
   function nestExpr (e) { return `(function() { return ${code}; })()`; } /* eslint-disable-line require-jsdoc */
