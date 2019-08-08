@@ -38,7 +38,6 @@ if __name__ == "__main__":
               "ccoverage/*",
               "js/*",
               "js/jsfunfuzz/*",
-              "js/shared/*",
               "util/*",
           ]},
           package_dir={"": "src"},

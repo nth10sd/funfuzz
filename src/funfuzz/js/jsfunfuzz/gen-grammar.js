@@ -16,7 +16,7 @@ import {
 import {
   Random,
   rnd
-} from "../shared/random";
+} from "./random";
 import {
   TOTALLY_RANDOM,
   totallyRandom
@@ -59,7 +59,7 @@ import {
   makeRegexUseExpr
 } from "./test-regex";
 import { asmJSInterior } from "./gen-asm";
-import { fuzzTestingFunctionsCtor } from "../shared/testing-functions";
+import { fuzzTestingFunctionsCtor } from "./testing-functions";
 import { makeImmediateRecursiveCall } from "./gen-recursion";
 import { makeRegisterStompBody } from "./gen-stomp-on-registers";
 import { recursiveFunctions } from "./gen-recursion";

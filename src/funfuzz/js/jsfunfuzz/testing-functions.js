@@ -1,4 +1,3 @@
-
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
@@ -10,7 +9,7 @@ import {
 import {
   makeFunction,
   makeId
-} from "../jsfunfuzz/gen-grammar";
+} from "./gen-grammar";
 
 // Generate calls to SpiderMonkey "testing functions" for:
 // * testing that they do not cause assertions/crashes

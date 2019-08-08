@@ -5,7 +5,7 @@
 import {
   Random,
   rnd
-} from "../shared/random";
+} from "./random";
 
 /* ***************************** *
  * GENERATING REGEXPS AND INPUTS *

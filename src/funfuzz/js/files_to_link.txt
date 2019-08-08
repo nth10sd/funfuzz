@@ -4,9 +4,9 @@ jsfunfuzz/detect-engine.js
 jsfunfuzz/avoid-known-bugs.js
 jsfunfuzz/error-reporting.js
 
-shared/random.js
-shared/mersenne-twister.js
-shared/testing-functions.js
+jsfunfuzz/random.js
+jsfunfuzz/mersenne-twister.js
+jsfunfuzz/testing-functions.js
 
 jsfunfuzz/built-in-constructors.js
 

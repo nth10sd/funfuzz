@@ -5,7 +5,7 @@
 import {
   Random,
   rnd
-} from "../shared/random";
+} from "./random";
 import { dumpln } from "./detect-engine";
 import { totallyRandom } from "./mess-grammar";
 

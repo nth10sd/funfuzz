@@ -5,7 +5,7 @@
 import {
   Random,
   rnd
-} from "../shared/random";
+} from "./random";
 
 // Using up all the registers can find bugs where a caller does not store its
 // registers properly, or a callee violates an ABI.

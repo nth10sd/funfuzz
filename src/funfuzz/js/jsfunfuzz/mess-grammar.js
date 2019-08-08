@@ -7,7 +7,7 @@
 import {
   Random,
   rnd
-} from "../shared/random";
+} from "./random";
 
 // Randomly ignore the grammar 1 in TOTALLY_RANDOM times we generate any grammar node.
 var TOTALLY_RANDOM = 1000;

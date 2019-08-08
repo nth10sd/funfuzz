@@ -11,7 +11,7 @@ import {
 import {
   Random,
   rnd
-} from "../shared/random";
+} from "./random";
 import {
   TOTALLY_RANDOM,
   totallyRandom

@@ -5,7 +5,7 @@
 /* exported readline */
 /* global gc, print, readline:writable, uneval:writable */
 
-import { rnd } from "../shared/random";
+import { rnd } from "./random";
 
 // jsfunfuzz is best run in a command-line shell.  It can also run in
 // a web browser, but you might have trouble reproducing bugs that way.

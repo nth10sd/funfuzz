@@ -5,7 +5,7 @@
 import {
   Random,
   rnd
-} from "../shared/random";
+} from "./random";
 import {
   makeExpr,
   makeMixedTypeArray,
