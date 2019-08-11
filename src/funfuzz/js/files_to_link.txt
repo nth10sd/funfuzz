@@ -16,7 +16,6 @@ jsfunfuzz/mess-grammar.js
 jsfunfuzz/gen-asm.js
 jsfunfuzz/gen-math.js
 jsfunfuzz/gen-grammar.js
-jsfunfuzz/gen-proxy.js
 jsfunfuzz/gen-recursion.js
 jsfunfuzz/gen-regex.js
 jsfunfuzz/gen-stomp-on-registers.js

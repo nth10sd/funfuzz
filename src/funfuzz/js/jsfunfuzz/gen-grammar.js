@@ -45,6 +45,7 @@ import {
   exceptionProperties,
   incDecOps,
   leftUnaryOps,
+  proxyHandlerProperties,
   randomUnitStringLiteral,
   specialProperties,
   typedArrayConstructors,
@@ -59,10 +60,6 @@ import {
   makeMathyFunAndTest,
   makeMathyFunRef
 } from "./test-math";
-import {
-  makeProxyHandler,
-  makeProxyHandlerFactory
-} from "./gen-proxy";
 import {
   makeRegex,
   makeRegexUseBlock,
@@ -1759,9 +1756,67 @@ function makeAsmJSFunction (d, b) { /* eslint-disable-line require-jsdoc */
  * THE ABOVE HAVE NOT BEEN CATEGORISED *
  * *********************************** */
 
-/* ******** *
- *  INDEX   *
- * ******** */
+/* *************** *
+ *  INDEX          *
+ * - PROXIES (ES6) *
+ * *************** */
+
+/* ************* *
+ * PROXIES (ES6) *
+ * ************* */
+
+function makeProxyHandler (d, b) { /* eslint-disable-line require-jsdoc */
+  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
+
+  return `${makeProxyHandlerFactory(d, b)}(${makeExpr(d - 3, b)})`;
+}
+
+function makeProxyHandlerFactory (d, b) { /* eslint-disable-line require-jsdoc */
+  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
+
+  if (d < 1) { return "({/*TOODEEP*/})"; }
+
+  try { // in case we screwed Object.prototype, breaking proxyHandlerProperties
+    var preferred = Random.index(["empty", "forward", "yes", "no", "bind", "throwing"]);
+    var fallback = Random.index(["empty", "forward"]);
+    var fidelity = rnd(10);
+
+    var handlerFactoryText = "(function handlerFactory(x) {";
+    handlerFactoryText += "return {";
+
+    if (rnd(2)) {
+      // handlerFactory has an argument 'x'
+      bp = b.concat(["x"]);
+    } else {
+      // handlerFactory has no argument
+      handlerFactoryText = handlerFactoryText.replace(/x/, "");
+      bp = b;
+    }
+
+    for (var p in proxyHandlerProperties) {
+      var funText;
+      if (proxyHandlerProperties[p][preferred] && rnd(10) <= fidelity) {
+        funText = proxyHandlerProperties[p][preferred];
+      } else {
+        switch (rnd(7)) {
+          /* eslint-disable no-multi-spaces */
+          case 0:  funText = makeFunction(d - 3, bp); break;
+          case 1:  funText = "undefined"; break;
+          case 2:  funText = "function() { throw 3; }"; break;
+          default: funText = proxyHandlerProperties[p][fallback];
+          /* eslint-enable no-multi-spaces */
+        }
+      }
+      handlerFactoryText += `${p}: ${funText}, `;
+    }
+
+    handlerFactoryText += "}; })";
+
+    return handlerFactoryText;
+  } catch (e) {
+    return "({/* :( */})";
+  }
+}
 
 export {
   bp,

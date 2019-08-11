@@ -29,6 +29,75 @@ var leftUnaryOps = [
   "yield ", // see http://www.python.org/dev/peps/pep-0342/ .  Often needs to be parenthesized, so there's also a special exprMaker for it.
   "await "
 ];
+// In addition, can always use "undefined" or makeFunction
+// Forwarding proxy code based on http://wiki.ecmascript.org/doku.php?id=harmony:proxies "Example: a no-op forwarding proxy"
+// The letter 'x' is special.
+var proxyHandlerProperties = {
+  getOwnPropertyDescriptor: {
+    empty: "function(target, name) {}",
+    forward: "function(target, name) { var desc = Reflect.getOwnPropertyDescriptor(x); desc.configurable = true; return desc; }",
+    throwing: "function(target, name) { return {get: function() { throw 4; }, set: function() { throw 5; }}; }"
+  },
+  defineProperty: {
+    empty: "function(target, name, desc) {}",
+    forward: "function(target, name, desc) { return Reflect.defineProperty(x, name, desc); }"
+  },
+  ownKeys: {
+    empty: "function(target) { return []; }",
+    forward: "function(target) { return Reflect.ownKeys(x); }"
+  },
+  deleteProperty: {
+    empty: "function(target, name) { return true; }",
+    yes: "function(target, name) { return true; }",
+    no: "function(target, name) { return false; }",
+    forward: "function(target, name) { return Reflect.deleteProperty(x, name); }"
+  },
+  has: {
+    empty: "function(target, name) { return false; }",
+    yes: "function(target, name) { return true; }",
+    no: "function(target, name) { return false; }",
+    forward: "function(target, name) { return name in x; }"
+  },
+  get: {
+    empty: "function(target, name, receiver) { return undefined }",
+    forward: "function(target, name, receiver) { return Reflect.get(x, name, receiver); }",
+    bind: "function(target, name, receiver) { var prop = Reflect.get(x, name, receiver); return (typeof prop) === 'function' ? prop.bind(x) : prop; }"
+  },
+  set: {
+    empty: "function(target, name, val, receiver) { return true; }",
+    yes: "function(target, name, val, receiver) { return true; }",
+    no: "function(target, name, val, receiver) { return false; }",
+    forward: "function(target, name, val, receiver) { return Reflect.set(x, name, val, receiver); }"
+  },
+  getPrototypeOf: {
+    empty: "function(target) { return null; }",
+    forward: "function(target) { return Reflect.getPrototypeOf(x); }"
+  },
+  setPrototypeOf: {
+    yes: "function(target, proto) { return true; }",
+    no: "function(target, proto) { return false; }",
+    forward: "function(target, proto) { return Reflect.setPrototypeOf(x, proto); }"
+  },
+  isExtensible: {
+    yes: "function(target) { return true; }",
+    no: "function(target) { return false; }",
+    forward: "function(target) { return Reflect.isExtensible(x); }"
+  },
+  preventExtensions: {
+    yes: "function(target) { return true; }",
+    no: "function(target) { return false; }",
+    forward: "function(target) { return Reflect.preventExtensions(x); }"
+  },
+  apply: {
+    empty: "function(target, thisArgument, argumentsList) {}",
+    forward: "function(target, thisArgument, argumentsList) { return Reflect.apply(x, thisArgument, argumentsList); }"
+  },
+  construct: {
+    empty: "function(target, argumentsList, newTarget) { return []; }",
+    invalid: "function(target, argumentsList, newTarget) { return 3; }",
+    forward: "function(target, argumentsList, newTarget) { return Reflect.construct(x, argumentsList, newTarget); }"
+  }
+};
 var specialProperties = [
   "__proto__", "constructor", "prototype",
   "wrappedJSObject",
@@ -127,6 +196,7 @@ export {
   makeNewId,
   maybeLabel,
   maybeNeg,
+  proxyHandlerProperties,
   randomUnitStringLiteral,
   specialProperties,
   strTimes,
