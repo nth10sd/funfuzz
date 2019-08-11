@@ -1755,6 +1755,14 @@ function makeAsmJSFunction (d, b) { /* eslint-disable-line require-jsdoc */
   return `(function(stdlib, foreign, heap){ "use asm"; ${interior} })(this, {ff: ${makeFunction(d - 2, b)}}, new ${arrayBufferType()}(4096))`;
 }
 
+/* *********************************** *
+ * THE ABOVE HAVE NOT BEEN CATEGORISED *
+ * *********************************** */
+
+/* ******** *
+ *  INDEX   *
+ * ******** */
+
 export {
   bp,
   makeAsmJSFunction,
