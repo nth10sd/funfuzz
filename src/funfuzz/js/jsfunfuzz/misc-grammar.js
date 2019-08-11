@@ -12,11 +12,41 @@ import {
 } from "./mess-grammar";
 import { cat } from "./mess-tokens";
 
+const NUM_MATH_FUNCTIONS = 6;
+
 var binaryOps = [
   // Long-standing JavaScript operators, roughly in order from http://www.codehouse.com/javascript/precedence/
   " * ", " / ", " % ", " + ", " - ", " << ", " >> ", " >>> ", " < ", " > ", " <= ", " >= ", " instanceof ",
   " in ", " == ", " != ", " === ", " !== ", " & ", " | ", " ^ ", " && ", " || ", " = ", " *= ", " /= ",
   " %= ", " += ", " -= ", " <<= ", " >>= ", " >>>= ", " &= ", " ^= ", " |= ", " , ", " ** ", " **= "
+];
+var confusableVals = [
+  "0",
+  "0.1",
+  "-0",
+  "''",
+  "'0'",
+  "'\\0'",
+  "[]",
+  "[0]",
+  "/0/",
+  "'/0/'",
+  "1",
+  "({toString:function(){return '0';}})",
+  "({valueOf:function(){return 0;}})",
+  "({valueOf:function(){return '0';}})",
+  "false",
+  "true",
+  "undefined",
+  "null",
+  "(function(){return 0;})",
+  "NaN",
+  "(new Boolean(false))",
+  "(new Boolean(true))",
+  "(new String(''))",
+  "(new Number(0))",
+  "(new Number(-0))",
+  "createIsHTMLDDA()"
 ];
 var exceptionProperties = ["constructor", "message", "name", "fileName", "lineNumber", "stack"];
 var incDecOps = [
@@ -185,7 +215,9 @@ function uniqueVarName () { /* eslint-disable-line require-jsdoc */
 }
 
 export {
+  NUM_MATH_FUNCTIONS,
   binaryOps,
+  confusableVals,
   directivePrologue,
   exceptionProperties,
   functionPrefix,

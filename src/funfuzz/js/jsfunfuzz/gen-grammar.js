@@ -14,6 +14,20 @@ import {
   xpcshell
 } from "./detect-engine";
 import {
+  NUM_MATH_FUNCTIONS,
+  binaryOps,
+  confusableVals,
+  exceptionProperties,
+  incDecOps,
+  leftUnaryOps,
+  proxyHandlerProperties,
+  randomUnitStringLiteral,
+  specialProperties,
+  typedArrayConstructors,
+  varBinder,
+  varBinderFor
+} from "./misc-grammar";
+import {
   POTENTIAL_MATCHES,
   randomRegexFlags,
   regexPattern,
@@ -42,32 +56,18 @@ import {
 } from "./gen-type-aware-code";
 import {
   binaryMathFunctions,
-  makeMathExpr,
-  makeMathFunction,
+  binaryMathOps,
+  leftUnaryMathOps,
+  numericVals,
   unaryMathFunctions
 } from "./gen-math";
-import {
-  binaryOps,
-  exceptionProperties,
-  incDecOps,
-  leftUnaryOps,
-  proxyHandlerProperties,
-  randomUnitStringLiteral,
-  specialProperties,
-  typedArrayConstructors,
-  varBinder,
-  varBinderFor
-} from "./misc-grammar";
 import {
   cat,
   stripSemicolon
 } from "./mess-tokens";
-import {
-  makeMathyFunAndTest,
-  makeMathyFunRef
-} from "./test-math";
 import { asmJSInterior } from "./gen-asm";
 import { fuzzTestingFunctionsCtor } from "./testing-functions";
+import { makeMathyFunRef } from "./test-math";
 import { makeRegisterStompBody } from "./gen-stomp-on-registers";
 import { makeUseRegressionTest } from "./randorderfuzz";
 import { recursiveFunctions } from "./gen-recursion";
@@ -1759,9 +1759,104 @@ function makeAsmJSFunction (d, b) { /* eslint-disable-line require-jsdoc */
 
 /* *************** *
  *  INDEX          *
+ * - MATH          *
  * - PROXIES (ES6) *
  * - REGEXPS       *
  * *************** */
+
+/* **** *
+ * MATH *
+ * **** */
+
+function makeMathExpr (d, b, i) { /* eslint-disable-line require-jsdoc */
+  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
+
+  // As depth decreases, make it more likely to bottom out
+  if (d < rnd(5)) {
+    if (rnd(4)) {
+      return Random.index(b);
+    }
+    return Random.index(numericVals);
+  }
+
+  if (rnd(500) === 0 && d > 0) { return makeExpr(d - 1, b); }
+
+  function r () { return makeMathExpr(d - 1, b, i); } /* eslint-disable-line require-jsdoc */
+
+  // Frequently, coerce both the inputs and outputs to the same "numeric sub-type"
+  // (asm.js formalizes this concept, but JITs may have their own variants)
+  var commonCoercion = rnd(10);
+  function mc (expr) { /* eslint-disable-line require-jsdoc */
+    switch (rnd(3) ? commonCoercion : rnd(10)) {
+      /* eslint-disable no-multi-spaces */
+      case 0:  return `( + ${expr})`;          // f64 (asm.js)
+      case 1:  return `Math.fround(${expr})`;  // f32
+      case 2:  return `(${expr} | 0)`;         // i32 (asm.js)
+      case 3:  return `(${expr} >>> 0)`;       // u32
+      default: return expr;
+      /* eslint-enable no-multi-spaces */
+    }
+  }
+
+  if (i > 0 && rnd(10) === 0) {
+    // Call a *lower-numbered* mathy function. (This avoids infinite recursion.)
+    return mc(`mathy${rnd(i)}(${mc(r())}, ${mc(r())})`);
+  }
+
+  if (rnd(20) === 0) {
+    return mc(`(${mc(r())} ? ${mc(r())} : ${mc(r())})`);
+  }
+
+  switch (rnd(4)) {
+    /* eslint-disable no-multi-spaces */
+    case 0:  return mc(`(${mc(r())}${Random.index(binaryMathOps)}${mc(r())})`);
+    case 1:  return mc(`(${Random.index(leftUnaryMathOps)}${mc(r())})`);
+    case 2:  return mc(`Math.${Random.index(unaryMathFunctions)}(${mc(r())})`);
+    default: return mc(`Math.${Random.index(binaryMathFunctions)}(${mc(r())}, ${mc(r())})`);
+    /* eslint-enable no-multi-spaces */
+  }
+}
+
+function makeMathFunction (d, b, i) { /* eslint-disable-line require-jsdoc */
+  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
+
+  var ivars = ["x", "y"];
+  if (rnd(10) === 0) {
+    // Also use variables from the enclosing scope
+    ivars = ivars.concat(b);
+  }
+  return `(function(x, y) { ${directivePrologue()}return ${makeMathExpr(d, ivars, i)}; })`;
+}
+
+function makeMathyFunAndTest (d, b) { /* eslint-disable-line require-jsdoc */
+  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
+
+  var i = rnd(NUM_MATH_FUNCTIONS);
+  var s = "";
+
+  if (rnd(5)) {
+    if (rnd(8)) {
+      s += `mathy${i} = ${makeMathFunction(6, b, i)}; `;
+    } else {
+      s += `mathy${i} = ${makeAsmJSFunction(6, b)}; `;
+    }
+  }
+
+  if (rnd(5)) {
+    var inputsStr;
+    switch (rnd(8)) {
+      /* eslint-disable no-multi-spaces */
+      case 0:  inputsStr = makeMixedTypeArray(d - 1, b); break;
+      case 1:  inputsStr = `[${Random.subset(confusableVals).join(", ")}]`; break;
+      default: inputsStr = `[${Random.subset(numericVals).join(", ")}]`; break;
+      /* eslint-enable no-multi-spaces */
+    }
+
+    s += `testMathyFunction(mathy${i}, ${inputsStr}); `;
+  }
+
+  return s;
+}
 
 /* ************* *
  * PROXIES (ES6) *
@@ -1891,6 +1986,7 @@ export {
   makeGlobal,
   makeId,
   makeIterable,
+  makeMathFunction,
   makeMixedTypeArray,
   makePropertyDescriptor,
   makePropertyName,

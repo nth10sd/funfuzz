@@ -5,52 +5,12 @@
 /* global print, uneval */
 
 import {
-  NUM_MATH_FUNCTIONS,
-  makeMathFunction,
-  numericVals
-} from "./gen-math";
-import {
-  Random,
-  rnd
-} from "./random";
-import {
   TOTALLY_RANDOM,
   totallyRandom
 } from "./mess-grammar";
-import {
-  makeAsmJSFunction,
-  makeMixedTypeArray
-} from "./gen-grammar";
+import { NUM_MATH_FUNCTIONS } from "./misc-grammar";
 import { errorToString } from "./error-reporting";
-
-var confusableVals = [
-  "0",
-  "0.1",
-  "-0",
-  "''",
-  "'0'",
-  "'\\0'",
-  "[]",
-  "[0]",
-  "/0/",
-  "'/0/'",
-  "1",
-  "({toString:function(){return '0';}})",
-  "({valueOf:function(){return 0;}})",
-  "({valueOf:function(){return '0';}})",
-  "false",
-  "true",
-  "undefined",
-  "null",
-  "(function(){return 0;})",
-  "NaN",
-  "(new Boolean(false))",
-  "(new Boolean(true))",
-  "(new String(''))",
-  "(new Number(0))",
-  "(new Number(-0))",
-  "createIsHTMLDDA()"
-];
+import { rnd } from "./random";
 
 function hashStr (s) { /* eslint-disable-line require-jsdoc */
   var hash = 0;
@@ -89,36 +49,6 @@ function mathInitFCM () { /* eslint-disable-line require-jsdoc */
   print(cookie + testMathyFunction.toString().replace(/\r/g, "\n").replace(/\n/g, " "));
 }
 
-function makeMathyFunAndTest (d, b) { /* eslint-disable-line require-jsdoc */
-  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
-
-  var i = rnd(NUM_MATH_FUNCTIONS);
-  var s = "";
-
-  if (rnd(5)) {
-    if (rnd(8)) {
-      s += `mathy${i} = ${makeMathFunction(6, b, i)}; `;
-    } else {
-      s += `mathy${i} = ${makeAsmJSFunction(6, b)}; `;
-    }
-  }
-
-  if (rnd(5)) {
-    var inputsStr;
-    switch (rnd(8)) {
-      /* eslint-disable no-multi-spaces */
-      case 0:  inputsStr = makeMixedTypeArray(d - 1, b); break;
-      case 1:  inputsStr = `[${Random.subset(confusableVals).join(", ")}]`; break;
-      default: inputsStr = `[${Random.subset(numericVals).join(", ")}]`; break;
-      /* eslint-enable no-multi-spaces */
-    }
-
-    s += `testMathyFunction(mathy${i}, ${inputsStr}); `;
-  }
-
-  return s;
-}
-
 function makeMathyFunRef (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
 
@@ -126,7 +56,6 @@ function makeMathyFunRef (d, b) { /* eslint-disable-line require-jsdoc */
 }
 
 export {
-  makeMathyFunAndTest,
   makeMathyFunRef,
   mathInitFCM
 };
