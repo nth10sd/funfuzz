@@ -3,7 +3,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* exported linkedList, makeAsmJSFunction, makeAsmJSModule, makeCrazyToken, maybeMakeTerm, strTimes */
+/* exported linkedList, makeAsmJSFunction, makeAsmJSModule, strTimes */
 /* global allMethodNames, allPropertyNames, arrayBufferType, asmJSInterior, binaryMathFunctions, builtinFunctions */
 /* global builtinObjectNames, builtinProperties, cat, constructors, engine, ENGINE_JAVASCRIPTCORE, evalcx */
 /* global fuzzTestingFunctionsCtor, jsshell, js_src_tests_dir, libdir, loopCount, loopModulo, makeBuilderStatement */
@@ -1669,61 +1669,6 @@ function randomUnitStringLiteral () { /* eslint-disable-line require-jsdoc */
   }
   s += "\"";
   return s;
-}
-
-function maybeMakeTerm (d, b) { /* eslint-disable-line no-unused-vars,require-jsdoc */
-  if (rnd(2)) { return makeTerm(d - 1, b); } else { return ""; }
-}
-
-function makeCrazyToken () { /* eslint-disable-line no-unused-vars,require-jsdoc */
-  if (rnd(3) === 0) {
-    return String.fromCharCode(32 + rnd(128 - 32));
-  }
-  if (rnd(6) === 0) {
-    return String.fromCharCode(rnd(65536));
-  }
-
-  return Random.index([
-
-    // Some of this is from reading jsscan.h.
-
-    // Comments; comments hiding line breaks.
-    "//", UNTERMINATED_COMMENT, (`${UNTERMINATED_COMMENT}\n`), "/*\n*/",
-
-    // groupers (which will usually be unmatched if they come from here ;)
-    "[", "]",
-    "{", "}",
-    "(", ")",
-
-    // a few operators
-    "!", "@", "%", "^", "*", "**", "|", ":", "?", "'", "\"", ",", ".", "/",
-    "~", "_", "+", "=", "-", "++", "--", "+=", "%=", "|=", "-=",
-    "...", "=>",
-
-    // most real keywords plus a few reserved keywords
-    " in ", " instanceof ", " let ", " new ", " get ", " for ", " if ", " else ", " else if ", " try ", " catch ", " finally ", " export ", " import ", " void ", " with ",
-    " default ", " goto ", " case ", " switch ", " do ", " /*infloop*/while ", " return ", " yield ", " await ", " break ", " continue ", " typeof ", " var ", " const ",
-
-    // reserved when found in strict mode code
-    " package ",
-
-    // several keywords can be used as identifiers. these are just a few of them.
-    " enum ", // JS_HAS_RESERVED_ECMA_KEYWORDS
-    " debugger ", // JS_HAS_DEBUGGER_KEYWORD
-    " super ", // TOK_PRIMARY!
-
-    " this ", // TOK_PRIMARY!
-    " null ", // TOK_PRIMARY!
-    " undefined ", // not a keyword, but a default part of the global object
-    "\n", // trigger semicolon insertion, also acts as whitespace where it might not be expected
-    "\r",
-    "\u2028", // LINE_SEPARATOR?
-    "\u2029", // PARA_SEPARATOR?
-    "<" + "!" + "--", // beginning of HTML-style to-end-of-line comment (!)
-    "--" + ">", // end of HTML-style comment
-    "",
-    "\0" // confuse anything that tries to guess where a string ends. but note: "illegal character"!
-  ]);
 }
 
 function makeShapeyValue (d, b) { /* eslint-disable-line require-jsdoc */
