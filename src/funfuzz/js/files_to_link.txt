@@ -6,7 +6,6 @@ jsfunfuzz/error-reporting.js
 
 jsfunfuzz/random.js
 jsfunfuzz/mersenne-twister.js
-jsfunfuzz/testing-functions.js
 
 jsfunfuzz/built-in-constructors.js
 
