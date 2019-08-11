@@ -101,14 +101,14 @@ function makeProxyHandlerFactory (d, b) { /* eslint-disable-line require-jsdoc *
     for (var p in proxyHandlerProperties) {
       var funText;
       if (proxyHandlerProperties[p][preferred] && rnd(10) <= fidelity) {
-        funText = proxyMunge(proxyHandlerProperties[p][preferred], p);
+        funText = proxyHandlerProperties[p][preferred];
       } else {
         switch (rnd(7)) {
           /* eslint-disable no-multi-spaces */
           case 0:  funText = makeFunction(d - 3, bp); break;
           case 1:  funText = "undefined"; break;
           case 2:  funText = "function() { throw 3; }"; break;
-          default: funText = proxyMunge(proxyHandlerProperties[p][fallback], p);
+          default: funText = proxyHandlerProperties[p][fallback];
           /* eslint-enable no-multi-spaces */
         }
       }
@@ -121,11 +121,6 @@ function makeProxyHandlerFactory (d, b) { /* eslint-disable-line require-jsdoc *
   } catch (e) {
     return "({/* :( */})";
   }
-}
-
-function proxyMunge (funText, p) { /* eslint-disable-line require-jsdoc */
-  // funText = funText.replace(/\{/, `{ var yum = 'PCAL'; dumpln(yum + 'LED: ${p}');`);
-  return funText;
 }
 
 function makeProxyHandler (d, b) { /* eslint-disable-line require-jsdoc */
