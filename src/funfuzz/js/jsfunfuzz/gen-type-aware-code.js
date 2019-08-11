@@ -20,7 +20,6 @@ import {
   makeAsmJSModule,
   makeBoolean,
   makeExpr,
-  makeFunOnCallChain,
   makeFunction,
   makeFunctionBody,
   makeGlobal,
@@ -28,11 +27,14 @@ import {
   makePropertyDescriptor,
   makePropertyName,
   makeScriptForEval,
-  makeStatement,
+  makeStatement
+} from "./gen-grammar";
+import {
+  makeFunOnCallChain,
   typedArrayConstructors,
   uniqueVarName,
   varBinder
-} from "./gen-grammar";
+} from "./misc-grammar";
 import {
   makeRegex,
   makeRegexUseBlock

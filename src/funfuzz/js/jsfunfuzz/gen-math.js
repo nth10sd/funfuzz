@@ -10,11 +10,8 @@ import {
   TOTALLY_RANDOM,
   totallyRandom
 } from "./mess-grammar";
-import {
-  directivePrologue,
-  makeExpr
-} from "./gen-grammar";
-import { numericVals } from "./test-math";
+import { directivePrologue } from "./misc-grammar";
+import { makeExpr } from "./gen-grammar";
 
 const NUM_MATH_FUNCTIONS = 6;
 
@@ -77,6 +74,27 @@ var binaryMathFunctions = [
   "max", // n-ary
   "min", // n-ary
   "pow"
+];
+
+var numericVals = [
+  "1", "Math.PI", "42",
+  // Special float values
+  "0", "-0", "0/0", "1/0", "-1/0",
+  // Boundaries of int, signed, unsigned (near +/- 2^31, +/- 2^32)
+  "0x07fffffff", "0x080000000", "0x080000001",
+  "-0x07fffffff", "-0x080000000", "-0x080000001",
+  "0x0ffffffff", "0x100000000", "0x100000001",
+  "-0x0ffffffff", "-0x100000000", "-0x100000001",
+  // Boundaries of double
+  "Number.MIN_VALUE", "-Number.MIN_VALUE",
+  "Number.MAX_VALUE", "-Number.MAX_VALUE",
+  // Boundaries of maximum safe integer
+  "Number.MIN_SAFE_INTEGER", "-Number.MIN_SAFE_INTEGER",
+  "-(2**53-2)", "-(2**53)", "-(2**53+2)",
+  "Number.MAX_SAFE_INTEGER", "-Number.MAX_SAFE_INTEGER",
+  "(2**53)-2", "(2**53)", "(2**53)+2",
+  // See bug 1350097 - 1.79...e308 is the largest (by module) finite number
+  "0.000000000000001", "1.7976931348623157e308"
 ];
 
 function makeMathFunction (d, b, i) { /* eslint-disable-line require-jsdoc */
@@ -144,5 +162,6 @@ export {
   binaryMathFunctions,
   makeMathExpr,
   makeMathFunction,
+  numericVals,
   unaryMathFunctions
 };

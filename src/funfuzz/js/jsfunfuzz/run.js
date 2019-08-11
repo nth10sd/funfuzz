@@ -25,7 +25,7 @@ import {
 } from "./test-misc";
 import { jsStrictMode } from "./preamble";
 import { nestingConsistencyTest } from "./test-consistency";
-import { strTimes } from "./gen-grammar";
+import { strTimes } from "./misc-grammar";
 import { whatToTest } from "./avoid-known-bugs";
 
 var tryRunning;

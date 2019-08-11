@@ -3,15 +3,11 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import {
-  Random,
-  rnd
-} from "./random";
-import {
   makeExpr,
   makeMixedTypeArray,
-  makeStatement,
-  uniqueVarName
+  makeStatement
 } from "./gen-grammar";
+import { rnd } from "./random";
 
 /*
 David Anderson suggested creating the following recursive structures:
@@ -115,21 +111,4 @@ function singleRecursionDepth (d, b) { /* eslint-disable-line require-jsdoc */
   }
 })();
 
-export function makeImmediateRecursiveCall (d, b, cheat1, cheat2) { /* eslint-disable-line require-jsdoc */
-  if (rnd(10) !== 0) { return "(4277)"; }
-
-  var a = (cheat1 == null) ? Random.index(recursiveFunctions) : recursiveFunctions[cheat1];
-  var s = a.text;
-  var varMap = {};
-  for (var i = 0; i < a.vars.length; ++i) {
-    var prettyName = a.vars[i];
-    varMap[prettyName] = uniqueVarName();
-    s = s.replace(new RegExp(prettyName, "g"), varMap[prettyName]);
-  }
-  var actualArgs = cheat2 == null ? a.args(d, b) : cheat2;
-  s = `${s}(${actualArgs})`;
-  s = s.replace(/@/g, function () { if (rnd(4) === 0) return makeStatement(d - 2, b); return ""; });
-  if (a.randSub) s = a.randSub(s, varMap, d, b);
-  s = `(${s})`;
-  return s;
-}
+export { recursiveFunctions };

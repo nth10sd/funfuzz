@@ -22,11 +22,6 @@ import {
   totallyRandom
 } from "./mess-grammar";
 import {
-  UNTERMINATED_COMMENT,
-  cat,
-  stripSemicolon
-} from "./mess-tokens";
-import {
   allMethodNames,
   allPropertyNames,
   builtinFunctions,
@@ -46,6 +41,21 @@ import {
   unaryMathFunctions
 } from "./gen-math";
 import {
+  binaryOps,
+  exceptionProperties,
+  incDecOps,
+  leftUnaryOps,
+  randomUnitStringLiteral,
+  specialProperties,
+  typedArrayConstructors,
+  varBinder,
+  varBinderFor
+} from "./misc-grammar";
+import {
+  cat,
+  stripSemicolon
+} from "./mess-tokens";
+import {
   makeMathyFunAndTest,
   makeMathyFunRef
 } from "./test-math";
@@ -60,8 +70,8 @@ import {
 } from "./test-regex";
 import { asmJSInterior } from "./gen-asm";
 import { fuzzTestingFunctionsCtor } from "./testing-functions";
-import { makeImmediateRecursiveCall } from "./gen-recursion";
 import { makeRegisterStompBody } from "./gen-stomp-on-registers";
+import { makeUseRegressionTest } from "./randorderfuzz";
 import { recursiveFunctions } from "./gen-recursion";
 
 /* ************************ *
@@ -106,9 +116,6 @@ function makeStatement (d, b) { /* eslint-disable-line require-jsdoc */
 
   return (Random.index(statementMakers))(d, b);
 }
-
-var varBinder = ["var ", "let ", "const ", ""];
-var varBinderFor = ["var ", "let ", ""]; // const is a syntax error in for loops
 
 // The reason there are several types of loops here is to create different
 // types of scripts without introducing infinite loops.
@@ -354,130 +361,6 @@ if (typeof oomTest === "function" && engine !== ENGINE_JAVASCRIPTCORE) {
   ]);
 }
 
-function makeUseRegressionTest (d, b) { /* eslint-disable-line require-jsdoc */
-  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
-
-  if (typeof regressionTestList !== "object") {
-    return "/* no regression tests found */";
-  }
-
-  var maintest = regressionTestsRoot + Random.index(regressionTestList); /* eslint-disable-line no-undef */
-  var files = regressionTestDependencies(maintest);
-
-  var s = "";
-
-  if (rnd(5) === 0) {
-    // Many tests call assertEq, intending to throw if something unexpected happens.
-    // Sometimes, override it with a function that compares but does not throw.
-    s += "assertEq = function(x, y) { if (x != y) { print(0); } }; ";
-  }
-
-  for (var i = 0; i < files.length; ++i) {
-    var file = files[i];
-
-    if (regressionTestIsEvil(read(file))) {
-      continue;
-    }
-
-    let testType = "regression";
-
-    switch (rnd(2)) {
-      case 0:
-      // simply inline the script -- this is the only one that will work in newGlobal()
-        s += `/* ${testType}-test-inline */ ${inlineTest(file)}`;
-        break;
-      default:
-      // run it using load()
-        s += `/* ${testType}-test-load */ load(${simpleSource(file)});`;
-        break;
-      // NB: these scripts will also be run through eval(), evalcx(), evaluate(), evalInWorker()
-      //     thanks to other parts of the fuzzer using makeScriptForEval or makeStatement
-    }
-  }
-  return s;
-}
-
-function regressionTestIsEvil (contents) { /* eslint-disable-line require-jsdoc */
-  if (contents.indexOf("SIMD") !== -1) {
-    // Disable SIMD testing until it's more stable (and we can get better stacks?)
-    return true;
-  }
-  if (contents.indexOf("print = ") !== -1) {
-    // A testcase that clobbers the |print| function would confuse js_interesting
-    return true;
-  }
-  return false;
-}
-
-function inlineTest (filename) { /* eslint-disable-line require-jsdoc */
-  // Inline a regression test, adding NODIFF (to disable differential testing) if it calls a testing function that might throw.
-
-  const s = `/* ${filename} */ ${read(filename)}\n`;
-
-  const noDiffTestingFunctions = [
-    // These can throw
-    "gcparam",
-    "startgc",
-    "setJitCompilerOption",
-    "disableSingleStepProfiling",
-    "enableSingleStepProfiling",
-    // These return values depending on command-line options, and some regression tests check them
-    "isAsmJSCompilationAvailable",
-    "isSimdAvailable", // in 32-bit x86 builds, it depends on whether --no-fpu is passed in, because --no-fpu also disables SSE
-    "hasChild",
-    "PerfMeasurement"
-  ];
-
-  for (var f of noDiffTestingFunctions) {
-    if (s.indexOf(f) !== -1) {
-      return `/*NODIFF*/ ${s}`;
-    }
-  }
-
-  return s;
-}
-
-function regressionTestDependencies (maintest) { /* eslint-disable-line require-jsdoc */
-  var files = [];
-
-  if (rnd(3)) {
-    // Include the chain of 'shell.js' files in their containing directories (starting from regressionTestsRoot)
-    for (var i = regressionTestsRoot.length; i < maintest.length; ++i) { /* eslint-disable-line no-undef */
-      if (maintest.charAt(i) === "/" || maintest.charAt(i) === "\\") {
-        var shelljs = `${maintest.substr(0, i + 1)}shell.js`;
-        if (regressionTestList.indexOf(shelljs) !== -1) { /* eslint-disable-line no-undef */
-          files.push(shelljs);
-        }
-      }
-    }
-
-    // Include prologue.js for jit-tests
-    if (maintest.indexOf("jit-test") !== -1) {
-      files.push(`${libdir}prologue.js`); /* eslint-disable-line no-undef */
-    }
-
-    // Include whitelisted shell.js for some tests, e.g. non262/test262 ones
-    if (maintest.indexOf("non262") !== -1) {
-      files.push(`${js_src_tests_dir}shell.js`); /* eslint-disable-line camelcase,no-undef */
-      files.push(`${non262_tests_dir}shell.js`); /* eslint-disable-line camelcase,no-undef */
-    }
-
-    if (maintest.indexOf("test262") !== -1) {
-      files.push(`${js_src_tests_dir}shell.js`); /* eslint-disable-line camelcase,no-undef */
-      files.push(`${test262_tests_dir}shell.js`); /* eslint-disable-line camelcase,no-undef */
-    }
-
-    // Include web-platform-test-shims.js and testharness.js for streams tests
-    if (maintest.indexOf("web-platform") !== -1) {
-      files.push(`${js_src_tests_dir}web-platform-test-shims.js`); /* eslint-disable-line camelcase,no-undef */
-      files.push(`${w_pltfrm_res_dir}testharness.js`); /* eslint-disable-line camelcase,no-undef */
-    }
-  }
-
-  files.push(maintest);
-  return files;
-}
-
 function linkedList (x, n) { /* eslint-disable-line require-jsdoc */
   for (var i = 0; i < n; ++i) { x = { a: x }; }
   return x;
@@ -630,8 +513,6 @@ function makeExceptionyStatement (d, b) { /* eslint-disable-line require-jsdoc *
   return (Random.index(exceptionyStatementMakers))(d, b);
 }
 
-var exceptionProperties = ["constructor", "message", "name", "fileName", "lineNumber", "stack"];
-
 var exceptionyStatementMakers = [
   function (d, b) { return makeTryBlock(d, b); },
 
@@ -723,36 +604,6 @@ function makeExpr (d, b) { /* eslint-disable-line require-jsdoc */
 
   if (rnd(4) === 1) { return `(${expr})`; } else { return expr; }
 }
-
-var binaryOps = [
-  // Long-standing JavaScript operators, roughly in order from http://www.codehouse.com/javascript/precedence/
-  " * ", " / ", " % ", " + ", " - ", " << ", " >> ", " >>> ", " < ", " > ", " <= ", " >= ", " instanceof ",
-  " in ", " == ", " != ", " === ", " !== ", " & ", " | ", " ^ ", " && ", " || ", " = ", " *= ", " /= ",
-  " %= ", " += ", " -= ", " <<= ", " >>= ", " >>>= ", " &= ", " ^= ", " |= ", " , ", " ** ", " **= "
-];
-
-var leftUnaryOps = [
-  "!", "+", "-", "~",
-  "void ", "typeof ", "delete ",
-  "new ", // but note that "new" can also be a very strange left-binary operator
-  "yield ", // see http://www.python.org/dev/peps/pep-0342/ .  Often needs to be parenthesized, so there's also a special exprMaker for it.
-  "await "
-];
-
-var incDecOps = [
-  "++", "--"
-];
-
-var specialProperties = [
-  "__proto__", "constructor", "prototype",
-  "wrappedJSObject",
-  "arguments", "caller", "callee",
-  "toString", "valueOf",
-  "call", "apply", // ({apply:...}).apply() hits a special case (speculation failure with funapply / funcall bytecode)
-  "length",
-  "0", "1",
-  "Symbol.species"
-];
 
 // This makes it easier for fuzz-generated code to mess with the fuzzer. Will I regret it?
 /*
@@ -1380,18 +1231,6 @@ if (typeof oomTest === "function" && engine !== ENGINE_JAVASCRIPTCORE) {
   ]);
 }
 
-var typedArrayConstructors = [
-  "Int8Array",
-  "Uint8Array",
-  "Int16Array",
-  "Uint16Array",
-  "Int32Array",
-  "Uint32Array",
-  "Float32Array",
-  "Float64Array",
-  "Uint8ClampedArray"
-];
-
 function makeTypedArrayStatements (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
 
@@ -1566,6 +1405,25 @@ function makeId (d, b) { /* eslint-disable-line require-jsdoc */
   // but bad things happen if you have "eval setter". so let's not put eval in this list.
 }
 
+function makeImmediateRecursiveCall (d, b, cheat1, cheat2) { /* eslint-disable-line require-jsdoc */
+  if (rnd(10) !== 0) { return "(4277)"; }
+
+  var a = (cheat1 == null) ? Random.index(recursiveFunctions) : recursiveFunctions[cheat1];
+  var s = a.text;
+  var varMap = {};
+  for (var i = 0; i < a.vars.length; ++i) {
+    var prettyName = a.vars[i];
+    varMap[prettyName] = uniqueVarName();
+    s = s.replace(new RegExp(prettyName, "g"), varMap[prettyName]);
+  }
+  var actualArgs = cheat2 == null ? a.args(d, b) : cheat2;
+  s = `${s}(${actualArgs})`;
+  s = s.replace(/@/g, function () { if (rnd(4) === 0) return makeStatement(d - 2, b); return ""; });
+  if (a.randSub) s = a.randSub(s, varMap, d, b);
+  s = `(${s})`;
+  return s;
+}
+
 // for..in LHS can be a single variable OR it can be a destructuring array of exactly two elements.
 function makeForInLHS (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
@@ -1713,15 +1571,6 @@ var termMakers = [
   function (d, b) { return Random.index([" /x/ ", " /x/g "]); },
   makeRegex
 ];
-
-function randomUnitStringLiteral () { /* eslint-disable-line require-jsdoc */
-  var s = "\"\\u";
-  for (var i = 0; i < 4; ++i) {
-    s += "0123456789ABCDEF".charAt(rnd(16));
-  }
-  s += "\"";
-  return s;
-}
 
 function makeShapeyValue (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
@@ -1892,16 +1741,6 @@ var iterableExprMakers = Random.weighted([
   { w: 1, v: makeExpr }
 ]);
 
-function strTimes (s, n) { /* eslint-disable-line require-jsdoc */
-  if (n === 0) return "";
-  if (n === 1) return s;
-  var s2 = s + s;
-  var r = n % 2;
-  var d = (n - r) / 2;
-  var m = strTimes(s2, d);
-  return r ? m + s : m;
-}
-
 function makeAsmJSModule (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
 
@@ -1918,14 +1757,12 @@ function makeAsmJSFunction (d, b) { /* eslint-disable-line require-jsdoc */
 
 export {
   bp,
-  directivePrologue,
   makeAsmJSFunction,
   makeAsmJSModule,
   makeBoolean,
   makeExpr,
   makeFunction,
   makeFunctionBody,
-  makeFunOnCallChain,
   makeGlobal,
   makeId,
   makeIterable,
@@ -1934,9 +1771,5 @@ export {
   makePropertyName,
   makeScript,
   makeScriptForEval,
-  makeStatement,
-  strTimes,
-  typedArrayConstructors,
-  uniqueVarName,
-  varBinder
+  makeStatement
 };
