@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global read, uneval */
+/* global uneval */
 
 import {
   ENGINE_JAVASCRIPTCORE,
@@ -3001,23 +3001,5 @@ function fuzzTestingFunctionsCtor (fGlobal) { /* eslint-disable-line require-jsd
 }
 
 export {
-  bp,
-  makeAsmJSFunction,
-  makeAsmJSModule,
-  makeBoolean,
-  makeExpr,
-  makeFunction,
-  makeFunctionBody,
-  makeGlobal,
-  makeId,
-  makeIterable,
-  makeMathFunction,
-  makeMixedTypeArray,
-  makePropertyDescriptor,
-  makePropertyName,
-  makeRegex,
-  makeRegexUseBlock,
-  makeScript,
-  makeScriptForEval,
-  makeStatement
+  makeScript
 };
