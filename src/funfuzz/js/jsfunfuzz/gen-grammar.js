@@ -14,6 +14,12 @@ import {
   xpcshell
 } from "./detect-engine";
 import {
+  POTENTIAL_MATCHES,
+  randomRegexFlags,
+  regexPattern,
+  toRegexSource
+} from "./gen-regex";
+import {
   Random,
   rnd
 } from "./random";
@@ -60,11 +66,6 @@ import {
   makeMathyFunAndTest,
   makeMathyFunRef
 } from "./test-math";
-import {
-  makeRegex,
-  makeRegexUseBlock,
-  makeRegexUseExpr
-} from "./test-regex";
 import { asmJSInterior } from "./gen-asm";
 import { fuzzTestingFunctionsCtor } from "./testing-functions";
 import { makeRegisterStompBody } from "./gen-stomp-on-registers";
@@ -1759,6 +1760,7 @@ function makeAsmJSFunction (d, b) { /* eslint-disable-line require-jsdoc */
 /* *************** *
  *  INDEX          *
  * - PROXIES (ES6) *
+ * - REGEXPS       *
  * *************** */
 
 /* ************* *
@@ -1818,6 +1820,66 @@ function makeProxyHandlerFactory (d, b) { /* eslint-disable-line require-jsdoc *
   }
 }
 
+/* ******* *
+ * REGEXPS *
+ * ******* */
+
+function makeRegexUseBlock (d, b, rexExpr, strExpr) { /* eslint-disable-line require-jsdoc */
+  var rexpair = regexPattern(10, false);
+  var rexpat = rexpair[0];
+  var str = rexpair[1][rnd(POTENTIAL_MATCHES)];
+
+  if (!rexExpr) rexExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : toRegexSource(rexpat);
+  if (!strExpr) strExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : simpleSource(str);
+
+  var bv = b.concat(["s", "r"]);
+
+  return (`/*RXUB*/var r = ${rexExpr}; ` +
+      `var s = ${strExpr}; ` +
+      "print(" +
+      Random.index([
+        "r.exec(s)",
+        "uneval(r.exec(s))",
+        "r.test(s)",
+        "s.match(r)",
+        "uneval(s.match(r))",
+        "s.search(r)",
+        `s.replace(r, ${makeReplacement(d, bv)}${rnd(3) ? "" : `, ${simpleSource(randomRegexFlags())}`})`,
+        "s.split(r)"
+      ]) +
+      "); " +
+      (rnd(3) ? "" : "print(r.lastIndex); ")
+  );
+}
+
+function makeRegexUseExpr (d, b) { /* eslint-disable-line require-jsdoc */
+  var rexpair = regexPattern(8, false);
+  var rexpat = rexpair[0];
+  var str = rexpair[1][rnd(POTENTIAL_MATCHES)];
+
+  var rexExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : toRegexSource(rexpat);
+  var strExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : simpleSource(str);
+
+  return `/*RXUE*/${rexExpr}.exec(${strExpr})`;
+}
+
+function makeRegex (d, b) { /* eslint-disable-line require-jsdoc */
+  var rexpair = regexPattern(8, false);
+  var rexpat = rexpair[0];
+  var rexExpr = toRegexSource(rexpat);
+  return rexExpr;
+}
+
+function makeReplacement (d, b) { /* eslint-disable-line require-jsdoc */
+  switch (rnd(3)) {
+    /* eslint-disable no-multi-spaces */
+    case 0:  return Random.index(["''", "'x'", "'\\u0341'"]);
+    case 1:  return makeExpr(d, b);
+    default: return makeFunction(d, b);
+    /* eslint-enable no-multi-spaces */
+  }
+}
+
 export {
   bp,
   makeAsmJSFunction,
@@ -1832,6 +1894,8 @@ export {
   makeMixedTypeArray,
   makePropertyDescriptor,
   makePropertyName,
+  makeRegex,
+  makeRegexUseBlock,
   makeScript,
   makeScriptForEval,
   makeStatement

@@ -6,6 +6,7 @@ import {
   Random,
   rnd
 } from "./random";
+import { simpleSource } from "./detect-engine";
 
 /* ***************************** *
  * GENERATING REGEXPS AND INPUTS *
@@ -288,7 +289,24 @@ function pickN (bucket, picks) { /* eslint-disable-line require-jsdoc */
   return picked;
 }
 
+function randomRegexFlags () { /* eslint-disable-line require-jsdoc */
+  var s = "";
+  if (rnd(2)) { s += "g"; }
+  if (rnd(2)) { s += "y"; }
+  if (rnd(2)) { s += "i"; }
+  if (rnd(2)) { s += "m"; }
+  return s;
+}
+
+function toRegexSource (rexpat) { /* eslint-disable-line require-jsdoc */
+  return (rnd(2) === 0 && rexpat.charAt(0) !== "*") ?
+    `/${rexpat}/${randomRegexFlags()}` :
+    `new RegExp(${simpleSource(rexpat)}, ${simpleSource(randomRegexFlags())})`;
+}
+
 export {
   POTENTIAL_MATCHES,
-  regexPattern
+  randomRegexFlags,
+  regexPattern,
+  toRegexSource
 };

@@ -26,6 +26,8 @@ import {
   makeIterable,
   makePropertyDescriptor,
   makePropertyName,
+  makeRegex,
+  makeRegexUseBlock,
   makeScriptForEval,
   makeStatement
 } from "./gen-grammar";
@@ -35,10 +37,6 @@ import {
   uniqueVarName,
   varBinder
 } from "./misc-grammar";
-import {
-  makeRegex,
-  makeRegexUseBlock
-} from "./test-regex";
 import { makeRegisterStompFunction } from "./gen-stomp-on-registers";
 
 /* ******************* *
