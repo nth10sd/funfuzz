@@ -62,6 +62,7 @@ var builtinObjects = {}; // { "Array.prototype": ["sort", "length", ...], ... }
     builtinObjectNames.push(an);
   }
 
+  try {
   function exploreConstructors () { /* eslint-disable-line require-jsdoc */
     var gns = Object.getOwnPropertyNames(glob);
     for (var i = 0; i < gns.length; ++i) {
@@ -96,6 +97,7 @@ var builtinObjects = {}; // { "Array.prototype": ["sort", "length", ...], ... }
     print(uneval(builtinObjects));
     quit();
   }
+  } catch (e) {}
 })(this, false);
 
 export {
