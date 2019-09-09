@@ -12,7 +12,7 @@ import {
   TOTALLY_RANDOM,
   totallyRandom
 } from "./mess-grammar";
-import { simpleSource } from "./detect-engine";
+import { utils } from "@mozillasecurity/octo";
 
 function inlineTest (filename) { /* eslint-disable-line require-jsdoc */
   // Inline a regression test, adding NODIFF (to disable differential testing) if it calls a testing function that might throw.
@@ -76,7 +76,7 @@ function makeUseRegressionTest (d, b) { /* eslint-disable-line require-jsdoc */
         break;
       default:
       // run it using load()
-        s += `/* ${testType}-test-load */ load(${simpleSource(file)});`;
+        s += `/* ${testType}-test-load */ load(${utils.common.quote(file)});`;
         break;
       // NB: these scripts will also be run through eval(), evalcx(), evaluate(), evalInWorker()
       //     thanks to other parts of the fuzzer using makeScriptForEval or makeStatement

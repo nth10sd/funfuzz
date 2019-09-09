@@ -6,6 +6,7 @@
 /* global gc, print, readline:writable, uneval:writable */
 
 import { rnd } from "./random";
+import { utils } from "@mozillasecurity/octo";
 
 // jsfunfuzz is best run in a command-line shell.  It can also run in
 // a web browser, but you might have trouble reproducing bugs that way.
@@ -52,27 +53,8 @@ var HOTLOOP = 60;
 function loopCount () { return rnd(rnd(HOTLOOP * 3)); } /* eslint-disable-line require-jsdoc */
 function loopModulo () { return (rnd(2) ? rnd(rnd(HOTLOOP * 2)) : rnd(5)) + 2; } /* eslint-disable-line require-jsdoc */
 
-function simpleSource (st) { /* eslint-disable-line require-jsdoc */
-  function hexify (c) { /* eslint-disable-line require-jsdoc */
-    var code = c.charCodeAt(0);
-    var hex = code.toString(16);
-    while (hex.length < 4) { hex = `0${hex}`; }
-    return `\\u${hex}`;
-  }
-
-  if (typeof st === "string") {
-    return ("\"" +
-      st.replace(/\\/g, "\\\\")
-        .replace(/"/g, "\\\"")
-        .replace(/\0/g, "\\0")
-        .replace(/\n/g, "\\n")
-        .replace(/[^ -~]/g, hexify) + // not space (32) through tilde (126)
-      "\"");
-  } else { return `${st}`; } // hope this is right ;)  should work for numbers.
-}
-
 var haveRealUneval = (typeof uneval === "function");
-if (!haveRealUneval) { uneval = simpleSource; }
+if (!haveRealUneval) { uneval = utils.common.quote; }
 
 if (engine === ENGINE_UNKNOWN) { printImportant("Targeting an unknown JavaScript engine!"); } else if (engine === ENGINE_SPIDERMONKEY_TRUNK) { printImportant("Targeting SpiderMonkey / Gecko (trunk)."); } else if (engine === ENGINE_JAVASCRIPTCORE) { printImportant("Targeting JavaScriptCore / WebKit."); }
 
@@ -86,6 +68,5 @@ export {
   loopCount,
   loopModulo,
   printImportant,
-  simpleSource,
   xpcshell
 };

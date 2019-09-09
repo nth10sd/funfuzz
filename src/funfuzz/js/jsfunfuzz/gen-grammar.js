@@ -10,7 +10,6 @@ import {
   jsshell,
   loopCount,
   loopModulo,
-  simpleSource,
   xpcshell
 } from "./detect-engine";
 import {
@@ -82,6 +81,7 @@ import {
 } from "./gen-stomp-on-registers";
 import { makeMathyFunRef } from "./test-math";
 import { makeUseRegressionTest } from "./randorderfuzz";
+import { utils } from "@mozillasecurity/octo";
 
 /* ************************ *
  * GRAMMAR-BASED GENERATION *
@@ -983,9 +983,9 @@ var propertyNameMakers = Random.weighted([
   { w: 1, v: function (d, b) { return maybeNeg() + rnd(20); } },
   { w: 1, v: function (d, b) { return `"${maybeNeg()}${rnd(20)}"`; } },
   { w: 1, v: function (d, b) { return `new String("${maybeNeg()}${rnd(20)}")`; } },
-  { w: 5, v: function (d, b) { return simpleSource(Random.index(specialProperties)); } },
-  { w: 1, v: function (d, b) { return simpleSource(makeId(d - 1, b)); } },
-  { w: 5, v: function (d, b) { return simpleSource(Random.index(allMethodNames)); } }
+  { w: 5, v: function (d, b) { return utils.common.quote(Random.index(specialProperties)); } },
+  { w: 1, v: function (d, b) { return utils.common.quote(makeId(d - 1, b)); } },
+  { w: 5, v: function (d, b) { return utils.common.quote(Random.index(allMethodNames)); } }
 ]);
 
 function maybeNeg () { return rnd(5) ? "" : "-"; } /* eslint-disable-line require-jsdoc */
@@ -1086,7 +1086,7 @@ function makeObjLiteralName (d, b) { /* eslint-disable-line require-jsdoc */
 
   switch (rnd(6)) {
     /* eslint-disable no-multi-spaces */
-    case 0:  return simpleSource(makeNumber(d, b)); // a quoted number
+    case 0:  return utils.common.quote(makeNumber(d, b)); // a quoted number
     case 1:  return makeNumber(d, b);
     case 2:  return Random.index(allPropertyNames);
     case 3:  return Random.index(specialProperties);
@@ -2287,7 +2287,7 @@ function makeRegexUseBlock (d, b, rexExpr, strExpr) { /* eslint-disable-line req
   var str = rexpair[1][rnd(POTENTIAL_MATCHES)];
 
   if (!rexExpr) rexExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : toRegexSource(rexpat);
-  if (!strExpr) strExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : simpleSource(str);
+  if (!strExpr) strExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : utils.common.quote(str);
 
   var bv = b.concat(["s", "r"]);
 
@@ -2301,7 +2301,7 @@ function makeRegexUseBlock (d, b, rexExpr, strExpr) { /* eslint-disable-line req
         "s.match(r)",
         "uneval(s.match(r))",
         "s.search(r)",
-        `s.replace(r, ${makeReplacement(d, bv)}${rnd(3) ? "" : `, ${simpleSource(randomRegexFlags())}`})`,
+        `s.replace(r, ${makeReplacement(d, bv)}${rnd(3) ? "" : `, ${utils.common.quote(randomRegexFlags())}`})`,
         "s.split(r)"
       ]) +
       "); " +
@@ -2315,7 +2315,7 @@ function makeRegexUseExpr (d, b) { /* eslint-disable-line require-jsdoc */
   var str = rexpair[1][rnd(POTENTIAL_MATCHES)];
 
   var rexExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : toRegexSource(rexpat);
-  var strExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : simpleSource(str);
+  var strExpr = rnd(10) === 0 ? makeExpr(d - 1, b) : utils.common.quote(str);
 
   return `/*RXUE*/${rexExpr}.exec(${strExpr})`;
 }
@@ -2393,7 +2393,7 @@ var makeEvilCallback;
       case 0:  return (
         "Object.defineProperty(" +
         `${rnd(8) ? "this" : m("og")}, ` +
-        `${simpleSource(m(t))}, ` +
+        `${utils.common.quote(m(t))}, ` +
         `{ ${propertyDescriptorPrefix(d - 1, b)} get: function() { ${rnd(8) ? "" : makeBuilderStatement(d - 1, b)} return ${rhs}; } }` +
       ");"
       );
@@ -2496,9 +2496,9 @@ var makeEvilCallback;
   function strToEval (d, b) { /* eslint-disable-line require-jsdoc */
     switch (rnd(5)) {
       /* eslint-disable no-multi-spaces */
-      case 0:  return simpleSource(fdecl(d, b));
-      case 1:  return simpleSource(makeBuilderStatement(d, b));
-      default: return simpleSource(makeScriptForEval(d, b));
+      case 0:  return utils.common.quote(fdecl(d, b));
+      case 1:  return utils.common.quote(makeBuilderStatement(d, b));
+      default: return utils.common.quote(makeScriptForEval(d, b));
       /* eslint-enable no-multi-spaces */
     }
   }

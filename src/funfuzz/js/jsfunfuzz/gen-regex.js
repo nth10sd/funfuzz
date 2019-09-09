@@ -6,7 +6,7 @@ import {
   Random,
   rnd
 } from "./random";
-import { simpleSource } from "./detect-engine";
+import { utils } from "@mozillasecurity/octo";
 
 /* ***************************** *
  * GENERATING REGEXPS AND INPUTS *
@@ -301,7 +301,7 @@ function randomRegexFlags () { /* eslint-disable-line require-jsdoc */
 function toRegexSource (rexpat) { /* eslint-disable-line require-jsdoc */
   return (rnd(2) === 0 && rexpat.charAt(0) !== "*") ?
     `/${rexpat}/${randomRegexFlags()}` :
-    `new RegExp(${simpleSource(rexpat)}, ${simpleSource(randomRegexFlags())})`;
+    `new RegExp(${utils.common.quote(rexpat)}, ${utils.common.quote(randomRegexFlags())})`;
 }
 
 export {
