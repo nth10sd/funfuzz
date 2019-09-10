@@ -1601,7 +1601,7 @@ function makeShapeyValue (d, b) { /* eslint-disable-line require-jsdoc */
 
     // Boundaries
     [
-    // Boundaries of int, signed, unsigned (near +/- 2^31, +/- 2^32)
+      // Boundaries of int, signed, unsigned (near +/- 2^31, +/- 2^32)
       "0x07fffffff", "0x080000000", "0x080000001",
       "-0x07fffffff", "-0x080000000", "-0x080000001",
       "0x0ffffffff", "0x100000000", "0x100000001",
