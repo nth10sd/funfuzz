@@ -15,7 +15,6 @@ import {
   Random,
   rnd
 } from "./random";
-import { count } from "./driver";
 import { makeScript } from "./gen-grammar";
 import { mathInitFCM } from "./test-math";
 import { tryItOut } from "./run";
@@ -34,7 +33,6 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
   // Can be set to true if makeStatement has side effects, such as crashing, so you have to reduce "the hard way".
   var dumpEachSeed = false;
 
-  try {
   if (dumpEachSeed) {
     dumpln(`${cookie}Random.init(0);`);
   }
@@ -42,13 +40,12 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
   mathInitFCM();
 
   count = 0;
-  } catch (e) {}
 
   if (jsshell) {
-    try{
+
     // If another script specified a "maxRunTime" argument, use it; otherwise, run forever
     var MAX_TOTAL_TIME = (glob.maxRunTime) || (Infinity);
-    } catch (e) {}
+
     var startTime = new Date();
     var lastTime;
 
@@ -73,9 +70,7 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
   }
 
   function testOne () { /* eslint-disable-line require-jsdoc */
-    try{
     ++count;
-    } catch(e) {}
 
     // Sometimes it makes sense to start with simpler functions:
     // var depth = ((count / 1000) | 0) & 16;

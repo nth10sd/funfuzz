@@ -5,6 +5,7 @@ var path = require("path"); /* eslint-disable-line import/no-commonjs,import/no-
 module.exports = { /* eslint-disable-line import/no-commonjs */
   mode: "development",
   entry: [
+    "./jsfunfuzz/run-in-sandbox.js",
     "./jsfunfuzz/tail.js"
   ],
   output: {

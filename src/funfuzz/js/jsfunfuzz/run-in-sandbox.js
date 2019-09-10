@@ -69,7 +69,7 @@ function fillShellSandbox (sandbox) { /* eslint-disable-line require-jsdoc */
   return sandbox;
 }
 
-export function useSpidermonkeyShellSandbox (sandboxType) { /* eslint-disable-line require-jsdoc */
+global.useSpidermonkeyShellSandbox = function (sandboxType) { /* eslint-disable-line require-jsdoc */
   var primarySandbox;
 
   switch (sandboxType) {

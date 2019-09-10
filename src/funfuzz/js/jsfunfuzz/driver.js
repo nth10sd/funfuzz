@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-var count = 0;
+global.count = 0;
 var verbose = false;
 
 function failsToCompileInTry (code) { /* eslint-disable-line require-jsdoc */
@@ -17,7 +17,6 @@ function failsToCompileInTry (code) { /* eslint-disable-line require-jsdoc */
 }
 
 export {
-  count,
   failsToCompileInTry,
   verbose
 };
