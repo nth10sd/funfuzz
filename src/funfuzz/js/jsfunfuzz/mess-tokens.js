@@ -38,6 +38,7 @@ function cat (toks) { /* eslint-disable-line require-jsdoc */
     //   return "/*foo*/" + ...
     // Unary plus in the first one coerces the string that follows to number!
     if (typeof (toks[i]) !== "string") {
+      dumpln(`toks[${i}] is: ${toks[i]}`);
       dumpln(`Strange item in the array passed to cat: typeof toks[${i}] == ${typeof (toks[i])}`);
       dumpln(cat.caller);
       dumpln(cat.caller.caller);
