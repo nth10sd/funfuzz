@@ -118,7 +118,11 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
 // 2. Paste the result between "ddbegin" and "ddend", replacing "start(this);"
 // 3. Run Lithium to remove unnecessary lines between "ddbegin" and "ddend".
 // SPLICE DDBEGIN
-start(this);
+// first check if variable spans multiple files, e.g. testMathyFunction
+// test BEFORE putting global.* then AFTER
+let testVar = globalThis.maxRunTime;
+print(`\nTESTING: globalThis.maxRunTime is a: ` + `${typeof testVar}` + "\n");
+start(globalThis);
 // SPLICE DDEND
 
 if (jsshell) { print("It's looking good!"); } // Magic string that js_interesting looks for
