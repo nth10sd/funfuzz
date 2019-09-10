@@ -162,26 +162,26 @@ function tryEnsureSanity () { /* eslint-disable-line require-jsdoc */
   try {
     if (typeof __defineSetter__ !== "undefined") {
       // The only way to get rid of getters/setters is to delete the property.
-      if (!jsStrictMode) { delete this.eval; } /* eslint-disable-line no-eval */
-      delete this.Math;
-      delete this.Function;
-      delete this.gc;
-      delete this.uneval;
-      delete this.toString;
+      if (!jsStrictMode) { delete globalThis.eval; } /* eslint-disable-line no-eval */
+      delete globalThis.Math;
+      delete globalThis.Function;
+      delete globalThis.gc;
+      delete globalThis.uneval;
+      delete globalThis.toString;
     }
 
-    this.Math = realMath;
-    this.eval = realEval; /* eslint-disable-line no-eval */
-    this.Function = realFunction;
-    this.gc = realGC;
-    this.uneval = realUneval;
-    this.toString = realToString;
+    globalThis.Math = realMath;
+    globalThis.eval = realEval; /* eslint-disable-line no-eval */
+    globalThis.Function = realFunction;
+    globalThis.gc = realGC;
+    globalThis.uneval = realUneval;
+    globalThis.toString = realToString;
   } catch (e) {
     confused(`tryEnsureSanity failed: ${errorToString(e)}`);
   }
 
   // These can fail if the page creates a getter for "eval", for example.
-  if (this.eval !== realEval) { confused("Fuzz script replaced |eval|"); } /* eslint-disable-line no-eval */
+  if (globalThis.eval !== realEval) { confused("Fuzz script replaced |eval|"); } /* eslint-disable-line no-eval */
   if (Function !== realFunction) { confused("Fuzz script replaced |Function|"); }
 }
 

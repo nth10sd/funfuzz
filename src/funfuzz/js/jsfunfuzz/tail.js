@@ -15,6 +15,7 @@ import {
   Random,
   rnd
 } from "./random";
+import { count } from "./driver";
 import { makeScript } from "./gen-grammar";
 import { mathInitFCM } from "./test-math";
 import { tryItOut } from "./run";
@@ -110,14 +111,22 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
  * ********************************** */
 
 // 1. grep tryIt LOGFILE | grep -v "function tryIt" | pbcopy
-// 2. Paste the result between "ddbegin" and "ddend", replacing "start(this);"
+// 2. Paste the result between "ddbegin" and "ddend", replacing "start(globalThis);"
 // 3. Run Lithium to remove unnecessary lines between "ddbegin" and "ddend".
 // SPLICE DDBEGIN
 // first check if variable spans multiple files, e.g. testMathyFunction
 // test BEFORE putting global.* then AFTER
 let testVar = globalThis.maxRunTime;
 print(`\nTESTING: globalThis.maxRunTime is a: ` + `${typeof testVar}` + "\n");
-start(globalThis);
+
+// Adapted from randomly chosen test: js/src/jit-test/tests/gc/weak-marking-varying.js
+for (let x of [, 0]) {
+    let g = newGlobal();
+    g.eval('enqueueMark("set-color-gray")');
+    g.eval('enqueueMark("unset-color")');
+    g.eval('enqueueMark("yield")');
+    gcslice(9999);
+}
 // SPLICE DDEND
 
 if (jsshell) { print("It's looking good!"); } // Magic string that js_interesting looks for

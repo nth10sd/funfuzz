@@ -155,7 +155,7 @@
 //     for (var i = 0; i < 100; ++i) {
 //       var interior = generateAsmDifferential();
 //       print(interior);
-//       testAsmDifferential(this, interior);
+//       testAsmDifferential(globalThis, interior);
 //     }
 //     gc();
 //   }

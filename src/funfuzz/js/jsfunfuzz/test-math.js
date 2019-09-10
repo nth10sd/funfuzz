@@ -22,7 +22,7 @@ function hashStr (s) { /* eslint-disable-line require-jsdoc */
   return hash;
 }
 
-global.testMathyFunction = function (f, inputs) { /* eslint-disable-line require-jsdoc */
+function testMathyFunction (f, inputs) { /* eslint-disable-line require-jsdoc */
   var results = [];
   if (f) {
     for (var j = 0; j < inputs.length; ++j) {

@@ -759,8 +759,8 @@ var exprMakers =
   // Old getter/setter syntax, imperative
   function (d, b) { return cat([makeExpr(d, b), ".", "__defineGetter__", "(", uneval(makeId(d, b)), ", ", makeFunction(d, b), ")"]); },
   function (d, b) { return cat([makeExpr(d, b), ".", "__defineSetter__", "(", uneval(makeId(d, b)), ", ", makeFunction(d, b), ")"]); },
-  function (d, b) { return cat(["this", ".", "__defineGetter__", "(", uneval(makeId(d, b)), ", ", makeFunction(d, b), ")"]); },
-  function (d, b) { return cat(["this", ".", "__defineSetter__", "(", uneval(makeId(d, b)), ", ", makeFunction(d, b), ")"]); },
+  function (d, b) { return cat(["globalThis", ".", "__defineGetter__", "(", uneval(makeId(d, b)), ", ", makeFunction(d, b), ")"]); },
+  function (d, b) { return cat(["globalThis", ".", "__defineSetter__", "(", uneval(makeId(d, b)), ", ", makeFunction(d, b), ")"]); },
 
   // Object literal
   function (d, b) { return cat(["(", "{", makeObjLiteralPart(d, b), " }", ")"]); },
@@ -835,8 +835,8 @@ var fuzzTestingFunctions = fuzzTestingFunctionsCtor(fuzzTestingFunctionArg);
 
 // Ensure that even if makeExpr returns "" or "1, 2", we only pass one argument to functions like schedulegc
 // (null || (" + makeExpr(d - 2, b) + "))
-// Darn, only |this| and local variables are safe: an expression with side effects breaks the statement-level compare_jit hack
-function fuzzTestingFunctionArg (d, b) { return "this"; } /* eslint-disable-line require-jsdoc */
+// Darn, only |globalThis| and local variables are safe: an expression with side effects breaks the statement-level compare_jit hack
+function fuzzTestingFunctionArg (d, b) { return "globalThis"; } /* eslint-disable-line require-jsdoc */
 
 function makeTestingFunctionCall (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
@@ -912,7 +912,7 @@ function makeNewGlobalArg (d, b) { /* eslint-disable-line require-jsdoc */
 function makeGlobal (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
 
-  if (rnd(10)) { return "this"; }
+  if (rnd(10)) { return "globalThis"; }
 
   var gs;
   switch (rnd(4)) {
@@ -1074,7 +1074,7 @@ function makeToXFunction (d, b) { /* eslint-disable-line require-jsdoc */
   switch (rnd(4)) {
     /* eslint-disable no-multi-spaces */
     case 0:  return `function() { return ${makeExpr(d, b)}; }`;
-    case 1:  return "function() { return this; }";
+    case 1:  return "function() { return globalThis; }";
     case 2:  return makeEvilCallback(d, b);
     default: return makeFunction(d, b);
     /* eslint-enable no-multi-spaces */

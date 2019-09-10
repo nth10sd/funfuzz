@@ -98,7 +98,7 @@ var builtinObjects = {}; // { "Array.prototype": ["sort", "length", ...], ... }
     quit();
   }
   } catch (e) {}
-})(this, false);
+})(globalThis, false);
 
 export {
   allMethodNames,

@@ -8,23 +8,34 @@ import {
   Random,
   rnd
 } from "./random";
+import { random } from "@mozillasecurity/octo";
 
 // Randomly ignore the grammar 1 in TOTALLY_RANDOM times we generate any grammar node.
 var TOTALLY_RANDOM = 1000;
 
-var allMakers = getListOfMakers(this);
-
 function totallyRandom (d, b) { /* eslint-disable-line require-jsdoc */
   d = d + (rnd(5) - 2); // can increase!!
+  for (var f in globalThis) { print(globalThis[f]); }
 
-  var maker = Random.index(allMakers);
+  var allMakers = [];
+  for (var f in globalThis) {
+    {
+      allMakers.push(globalThis[f]);
+    }
+  }
+  print("allMakers is: " + allMakers);
+  var maker = random.random.item(allMakers);
+  try{
+  print("maker is: " + maker);
   var val = maker(d, b);
   if (typeof val !== "string") {
     print(maker.name);
     print(maker);
     throw new Error("We generated something that isn't a string!");
   }
+  print("allMakers WORKED and is: " + allMakers);quit();
   return val;
+}catch(e){print("allMakers is: " + allMakers);quit();}
 }
 
 function getListOfMakers (glob) { /* eslint-disable-line require-jsdoc */
@@ -37,7 +48,7 @@ function getListOfMakers (glob) { /* eslint-disable-line require-jsdoc */
   return r;
 }
 
-// To run testEachMaker(), replace `start(this)` with `Random.init(0);` and `testEachMaker();`
+// To run testEachMaker(), replace `start(globalThis)` with `Random.init(0);` and `testEachMaker();`
 /*
 function testEachMaker()
 {

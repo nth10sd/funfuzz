@@ -41,9 +41,9 @@ if (typeof verifyprebarriers === "function") {
 }
 
 // If WebAssembly object doesn't exist, make it an empty function, else runtime flags like --wasm-compiler=ion throw
-if (typeof WebAssembly === "undefined") { this.WebAssembly = function () {}; }
+if (typeof WebAssembly === "undefined") { globalThis.WebAssembly = function () {}; }
 
-if (typeof gc === "undefined") { this.gc = function () {}; }
+if (typeof gc === "undefined") { globalThis.gc = function () {}; }
 var gcIsQuiet = !(gc()); // see bug 706433
 
 // If the JavaScript engine being tested has heuristics like

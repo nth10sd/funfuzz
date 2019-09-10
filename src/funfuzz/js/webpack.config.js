@@ -10,8 +10,10 @@ module.exports = { /* eslint-disable-line import/no-commonjs */
   ],
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "jsfunfuzz.js"
-    // library: ["start"],
+    filename: "jsfunfuzz.js",
+    library: ["start"],
     // libraryTarget: "var"
-  }
+  },
+  target: "node",
+  devtool: "source-map"
 }; /* eslint-disable-line import/no-commonjs */

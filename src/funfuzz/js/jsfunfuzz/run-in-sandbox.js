@@ -59,8 +59,8 @@ function fillShellSandbox (sandbox) { /* eslint-disable-line require-jsdoc */
     var fn = safeFuns[i];
     if (sandbox[fn]) {
       // print(`Target already has ${fn}`);
-    } else if (this[fn]) { // FIXME: strict mode compliance requires passing glob around
-      sandbox[fn] = this[fn].bind(this);
+    } else if (globalThis[fn]) { // FIXME: strict mode compliance requires passing glob around
+      sandbox[fn] = globalThis[fn].bind(globalThis);
     } else {
       // print(`Source is missing ${fn}`);
     }
@@ -69,7 +69,7 @@ function fillShellSandbox (sandbox) { /* eslint-disable-line require-jsdoc */
   return sandbox;
 }
 
-global.useSpidermonkeyShellSandbox = function (sandboxType) { /* eslint-disable-line require-jsdoc */
+export function useSpidermonkeyShellSandbox (sandboxType) { /* eslint-disable-line require-jsdoc */
   var primarySandbox;
 
   switch (sandboxType) {
