@@ -432,7 +432,9 @@ def cfgBin(shell):  # pylint: disable=invalid-name,missing-param-doc,missing-rai
         cfg_cmds.append("--without-intl-api")
 
     if shell.build_opts.enableAddressSanitizer:
-        cfg_cmds.append("--enable-address-sanitizer")
+        # cfg_cmds.append("--enable-address-sanitizer")
+        cfg_cmds.append("--enable-undefined-sanitizer=bool,bounds,integer-divide-by-zero," +
+                        "object-size,pointer-overflow,shift,vla-bound")
         cfg_cmds.append("--disable-jemalloc")
     if shell.build_opts.enableValgrind:
         cfg_cmds.append("--enable-valgrind")
