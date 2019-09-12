@@ -1,5 +1,3 @@
-/* global __dirname, module, require */
-
 var path = require("path"); /* eslint-disable-line import/no-commonjs,import/no-nodejs-modules,import/unambiguous */
 
 module.exports = { /* eslint-disable-line import/no-commonjs */
