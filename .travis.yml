@@ -82,10 +82,27 @@ matrix:
       os: osx
       language: sh
       osx_image: xcode10.3
+      env: >
+        BUILD="--enable-debug --disable-optimize --enable-more-deterministic
+        --enable-oom-breakpoint"
       before_install:
         - travis_retry brew update
-        - travis_retry brew install autoconf@2.13 shellcheck
-        - travis_retry brew upgrade python
+        - travis_retry brew install autoconf@2.13 ccache expect gawk shellcheck yasm
+        # Save 5+ minutes by not upgrading mercurial and python if it is really not necessary
+        # - travis_retry brew upgrade mercurial python
+        - python3 -m venv venv
+        - source venv/bin/activate
+    - python: "3.7"
+      os: osx
+      language: sh
+      osx_image: xcode10.3
+      env: >
+        BUILD="--disable-debug --disable-profiling --without-intl-api"
+      before_install:
+        - travis_retry brew update
+        - travis_retry brew install autoconf@2.13 ccache expect gawk shellcheck yasm
+        # Save 5+ minutes by not upgrading mercurial and python if it is really not necessary
+        # - travis_retry brew upgrade mercurial python
         - python3 -m venv venv
         - source venv/bin/activate
     - python: "3.7"
@@ -118,18 +135,12 @@ matrix:
             - valgrind
   allow_failures:
     - python: "nightly"
-before_install:
+install:
   - |
-    if [ $TRAVIS_OS_NAME == "linux" ] ; then
-      gcc --version
-      g++ --version
-      clang --version
-      clang++ --version
-      llvm-symbolizer --version || true  # Ignore exit code if llvm-symbolizer does not exist
-      which llvm-config || true  # Find out location of llvm-config
-      export LLVM_CONFIG=/usr/local/clang-7.0.0/bin/llvm-config  # From llvm-config location
-      llvm-config --version || true  # Ignore exit code if llvm-config does not exist
-      /usr/bin/llvm-config --version || true  # Ignore exit code if llvm-config does not exist
+    if [ ! $TRAVIS_OS_NAME == "windows" ] ; then
+      npm --version || true  # Ignore exit code if non-existence is detected
+      clang --version || true  # Ignore exit code if non-existence is detected
+      clang++ --version || true  # Ignore exit code if non-existence is detected
       # Ensure latest Rust is installed
       curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
       source $HOME/.cargo/env
@@ -138,9 +149,17 @@ before_install:
       rustup --version
       which rustc
       rustc --version
-      npm --version
     fi
-install:
+  - |
+    if [ $TRAVIS_OS_NAME == "linux" ] ; then
+      gcc --version || true  # Ignore exit code if non-existence is detected
+      g++ --version || true  # Ignore exit code if non-existence is detected
+      llvm-symbolizer --version || true  # Ignore exit code if non-existence is detected
+      which llvm-config || true  # Find out location of llvm-config
+      export LLVM_CONFIG=/usr/local/clang-7.0.0/bin/llvm-config  # From llvm-config location
+      llvm-config --version || true  # Ignore exit code if non-existence is detected
+      /usr/bin/llvm-config --version || true  # Ignore exit code if non-existence is detected
+    fi
   # Already in venv, no need for --user
   - travis_retry python -m pip install --upgrade setuptools pip
   - travis_retry python -m pip --version
