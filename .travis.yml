@@ -172,6 +172,10 @@ before_script:
       # Run bashate on shell scripts
       (find . -type d \( -name venv \) -prune -o -type f -name "*.sh" -print0 | xargs -n 1 -0 bashate; exit;)
     fi
+  - |
+    if [[ ${TRAVIS_OS_NAME} == "osx" ]]; then
+      sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+    fi
 script:
   # To run everything locally in local funfuzz github repository directory:
   #   python -m pytest --flake8 --pylint --cov=`pwd` --cov-report term-missing
