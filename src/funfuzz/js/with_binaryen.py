@@ -19,7 +19,9 @@ from time import sleep
 import fasteners
 import requests
 
+from ..util import file_manipulation
 from ..util import sm_compile_helpers
+from .build_options import chance
 
 BINARYEN_OS = platform.system().lower()
 BINARYEN_ARCH = platform.machine()
@@ -127,6 +129,14 @@ def wasmopt_run(seed):
             sleep(sleep_time)
             sleep_time *= 2
     assert seed_wrapper_output.is_file()
+    lines_to_prepend = []
+    if chance(0.5):
+        lines_to_prepend.append('setJitCompilerOption("wasm.baseline", 1);')
+        if chance(0.5):
+            lines_to_prepend.append('setJitCompilerOption("wasm.ion", 1);')
+        if chance(0.5):
+            lines_to_prepend.append('setJitCompilerOption("wasm.cranelift", 1);')
+        file_manipulation.prepend_to_file(seed_wrapper_output, lines_to_prepend)
     assert seed_wasm_output.is_file()
 
     return (seed_wrapper_output, seed_wasm_output)

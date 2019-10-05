@@ -69,6 +69,15 @@ def linesStartingWith(lines, search_for):  # pylint: disable=invalid-name,missin
     return matched
 
 
+def prepend_to_file(filename, lines):  # pylint: disable=missing-function-docstring
+    with filename.open(mode="r+") as f:
+        file_contents = f.read()
+        f.seek(0, 0)
+        for line in lines:
+            f.write(f"{line}\n")
+        f.write(file_contents)
+
+
 def truncateMid(a, limit_each_side, insert_if_truncated):  # pylint: disable=invalid-name,missing-param-doc
     # pylint: disable=missing-return-doc,missing-return-type-doc,missing-type-doc
     """Return a list with the middle portion removed, if it has more than limit_each_side*2 items."""
