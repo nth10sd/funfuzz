@@ -37,6 +37,6 @@ def test_get_cset_hash_in_bisectmsg():
 # pylint: disable=no-member
 @pytest.mark.skipif(not (TREES_PATH / "mozilla-central" / ".hg" / "hgrc").is_file(),
                     reason="requires a Mozilla Mercurial repository")
-def test_hgrc_repo_name():
+def test_vcs_repo_name():
     """Test that we are able to extract the repository name from the hgrc file."""
-    assert vcs_helpers.hgrc_repo_name(TREES_PATH / "mozilla-central") == "mozilla-central"
+    assert vcs_helpers.vcs_repo_name(TREES_PATH / "mozilla-central") == "mozilla-central"

@@ -231,19 +231,26 @@ def get_repo_hash_and_id(repo_dir, repo_rev="parents() and default"):
     return hg_id_hash, hg_id_local_num, is_on_default
 
 
-def hgrc_repo_name(repo_dir):
-    """Look in the hgrc file in the .hg directory of the Mercurial repository and return the name.
+def vcs_repo_name(repo_dir):
+    """Look in the hgrc file in .hg/ (Mercurial), or config file in .git/ (Git) and return the name.
 
     Args:
-        repo_dir (Path): Mercurial repository directory
+        repo_dir (Path): Repository directory
 
     Returns:
-        str: Returns the name of the Mercurial repository as indicated in the .hgrc
+        str: Returns the name of the repository
     """
-    hgrc_cfg = configparser.ConfigParser()
-    hgrc_cfg.read(str(repo_dir / ".hg" / "hgrc"))
-    # Not all default entries in [paths] end with "/".
-    return [i for i in hgrc_cfg.get("paths", "default").split("/") if i][-1]
+    name = ""
+    cfg_file = configparser.ConfigParser()
+    if is_git_repo(repo_dir):
+        cfg_file.read(str(repo_dir / ".git" / "config"))
+        name = [i for i in cfg_file.get('remote "origin"', "url").split("/") if i][-1].split(".git")[0]
+    if is_hg_repo(repo_dir):
+        cfg_file.read(str(repo_dir / ".hg" / "hgrc"))
+        # Not all default entries in [paths] end with "/".
+        name = [i for i in cfg_file.get("paths", "default").split("/") if i][-1]
+
+    return name
 
 
 def patch_hg_repo_with_mq(patch_file, repo_dir=None):

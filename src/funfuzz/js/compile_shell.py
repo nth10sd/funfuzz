@@ -225,12 +225,12 @@ class CompiledShell:  # pylint: disable=too-many-instance-attributes,too-many-pu
         return self.build_opts.repo_dir
 
     def get_repo_name(self):
-        """Retrieve the name of a Mercurial repository.
+        """Retrieve the name of a repository.
 
         Returns:
             str: Name of the repository
         """
-        return vcs_helpers.hgrc_repo_name(self.build_opts.repo_dir)
+        return vcs_helpers.vcs_repo_name(self.build_opts.repo_dir)
 
     def get_s3_tar_name_with_ext(self):
         """Retrieve the name of the compressed shell tarball to be obtained from/sent to S3.
