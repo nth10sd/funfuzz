@@ -26,10 +26,10 @@ from pkg_resources import parse_version
 from . import build_options
 from . import inspect_shell
 from ..util import file_system_helpers
-from ..util import hg_helpers
 from ..util import s3cache
 from ..util import sm_compile_helpers
 from ..util import subprocesses as sps
+from ..util import vcs_helpers
 from ..util.lock_dir import LockDir
 
 S3_SHELL_CACHE_DIRNAME = "shell-cache"  # Used by autobisectjs
@@ -127,7 +127,7 @@ class CompiledShell:  # pylint: disable=too-many-instance-attributes,too-many-pu
             if options.revision:
                 shell = CompiledShell(options.build_opts, options.revision)
             else:
-                local_orig_hg_hash = hg_helpers.get_repo_hash_and_id(options.build_opts.repo_dir)[0]
+                local_orig_hg_hash = vcs_helpers.get_repo_hash_and_id(options.build_opts.repo_dir)[0]
                 shell = CompiledShell(options.build_opts, local_orig_hg_hash)
 
             obtainShell(shell, updateToRev=options.revision)
@@ -230,7 +230,7 @@ class CompiledShell:  # pylint: disable=too-many-instance-attributes,too-many-pu
         Returns:
             str: Name of the repository
         """
-        return hg_helpers.hgrc_repo_name(self.build_opts.repo_dir)
+        return vcs_helpers.hgrc_repo_name(self.build_opts.repo_dir)
 
     def get_s3_tar_name_with_ext(self):
         """Retrieve the name of the compressed shell tarball to be obtained from/sent to S3.
@@ -451,22 +451,22 @@ def cfgBin(shell):  # pylint: disable=invalid-name,missing-param-doc,missing-rai
                 # Disable cranelift on ASan builds if repository revision is on/after:
                 #   m-c rev 428135:6fcf54117a3b21164e6e769343416d2262991f6e, fx63
                 #   and before m-c rev 479295:9e7c1e1a993d51d611558244049a97599511e965, fx69
-                hg_helpers.existsAndIsAncestor(shell.get_repo_dir(),
-                                               shell.get_hg_hash(),
-                                               "9e7c1e1a993d51d611558244049a97599511e965") and not
-                hg_helpers.existsAndIsAncestor(shell.get_repo_dir(),
-                                               shell.get_hg_hash(),
-                                               "parents(6fcf54117a3b21164e6e769343416d2262991f6e)")
+                vcs_helpers.existsAndIsAncestor(shell.get_repo_dir(),
+                                                shell.get_hg_hash(),
+                                                "9e7c1e1a993d51d611558244049a97599511e965") and not
+                vcs_helpers.existsAndIsAncestor(shell.get_repo_dir(),
+                                                shell.get_hg_hash(),
+                                                "parents(6fcf54117a3b21164e6e769343416d2262991f6e)")
             ) or (
                 # Disable cranelift if repository revision is on/after:
                 #   m-c rev 438680:4d9500ca5761edd678a109b6b5a4ac3f4aa5edb0, fx64
                 #   and before m-c rev 494893:23803398111029a503a5ab228ad617bd0b9d728d, fx71
-                hg_helpers.existsAndIsAncestor(shell.get_repo_dir(),
-                                               shell.get_hg_hash(),
-                                               "23803398111029a503a5ab228ad617bd0b9d728d") and not
-                hg_helpers.existsAndIsAncestor(shell.get_repo_dir(),
-                                               shell.get_hg_hash(),
-                                               "parents(4d9500ca5761edd678a109b6b5a4ac3f4aa5edb0)")
+                vcs_helpers.existsAndIsAncestor(shell.get_repo_dir(),
+                                                shell.get_hg_hash(),
+                                                "23803398111029a503a5ab228ad617bd0b9d728d") and not
+                vcs_helpers.existsAndIsAncestor(shell.get_repo_dir(),
+                                                shell.get_hg_hash(),
+                                                "parents(4d9500ca5761edd678a109b6b5a4ac3f4aa5edb0)")
             )):
         cfg_cmds.append("--disable-cranelift")
 
@@ -636,7 +636,7 @@ def obtainShell(shell, updateToRev=None, updateLatestTxt=False):  # pylint: disa
         file_system_helpers.rm_tree_incl_readonly_files(shell.get_shell_cache_dir())
 
     shell.get_shell_cache_dir().mkdir()
-    hg_helpers.destroyPyc(shell.build_opts.repo_dir)
+    vcs_helpers.destroyPyc(shell.build_opts.repo_dir)
 
     s3cache_obj = s3cache.S3Cache(S3_SHELL_CACHE_DIRNAME)
     use_s3cache = s3cache_obj.connect()
@@ -668,7 +668,7 @@ def obtainShell(shell, updateToRev=None, updateLatestTxt=False):  # pylint: disa
                            stderr=subprocess.DEVNULL,
                            timeout=9999)
         if shell.build_opts.patch_file:
-            hg_helpers.patch_hg_repo_with_mq(shell.build_opts.patch_file, shell.get_repo_dir())
+            vcs_helpers.patch_hg_repo_with_mq(shell.build_opts.patch_file, shell.get_repo_dir())
 
         cfgJsCompile(shell)
         if platform.system() == "Windows":
@@ -691,7 +691,7 @@ def obtainShell(shell, updateToRev=None, updateLatestTxt=False):  # pylint: disa
         raise
     finally:
         if shell.build_opts.patch_file:
-            hg_helpers.qpop_qrm_applied_patch(shell.build_opts.patch_file, shell.get_repo_dir())
+            vcs_helpers.qpop_qrm_applied_patch(shell.build_opts.patch_file, shell.get_repo_dir())
 
     if use_s3cache and not os.getenv("RETAIN_SRC"):
         s3cache_obj.compressAndUploadDirTarball(str(shell.get_shell_cache_dir()),

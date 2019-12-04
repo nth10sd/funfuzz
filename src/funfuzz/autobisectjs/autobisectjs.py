@@ -24,10 +24,10 @@ from ..js import build_options
 from ..js import compile_shell
 from ..js import inspect_shell
 from ..util import file_system_helpers
-from ..util import hg_helpers
 from ..util import s3cache
 from ..util import sm_compile_helpers
 from ..util import subprocesses as sps
+from ..util import vcs_helpers
 from ..util.lock_dir import LockDir
 
 
@@ -148,18 +148,18 @@ def parseOpts():  # pylint: disable=invalid-name,missing-docstring,missing-retur
 
     if not options.useTreeherderBinaries:
         # pylint: disable=invalid-name
-        earliestKnown = hg_helpers.get_repo_hash_and_id(options.build_options.repo_dir, repo_rev=earliestKnownQuery)[0]
+        earliestKnown = vcs_helpers.get_repo_hash_and_id(options.build_options.repo_dir, repo_rev=earliestKnownQuery)[0]
 
     if options.startRepo is None:
         if options.useTreeherderBinaries:
             options.startRepo = "default"
         else:
             options.startRepo = earliestKnown
-    # elif not (options.useTreeherderBinaries or hg_helpers.isAncestor(options.build_options.repo_dir,
+    # elif not (options.useTreeherderBinaries or vcs_helpers.isAncestor(options.build_options.repo_dir,
     #                                                              earliestKnown, options.startRepo)):
     #     raise Exception("startRepo is not a descendant of kbew.earliestKnownWorkingRev for this configuration")
     #
-    # if not options.useTreeherderBinaries and not hg_helpers.isAncestor(options.build_options.repo_dir,
+    # if not options.useTreeherderBinaries and not vcs_helpers.isAncestor(options.build_options.repo_dir,
     #                                                                earliestKnown, options.endRepo):
     #     raise Exception("endRepo is not a descendant of kbew.earliestKnownWorkingRev for this configuration")
 
@@ -182,9 +182,9 @@ def findBlamedCset(options, repo_dir, testRev):  # pylint: disable=invalid-name,
 
     # Resolve names such as "tip", "default", or "52707" to stable hg hash ids, e.g. "9f2641871ce8".
     # pylint: disable=invalid-name
-    realStartRepo = sRepo = hg_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.startRepo)[0]
+    realStartRepo = sRepo = vcs_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.startRepo)[0]
     # pylint: disable=invalid-name
-    realEndRepo = eRepo = hg_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.endRepo)[0]
+    realEndRepo = eRepo = vcs_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.endRepo)[0]
     sps.vdump(f"Bisecting in the range {sRepo}:{eRepo}")
 
     # Refresh source directory (overwrite all local changes) to default tip if required.
@@ -218,7 +218,7 @@ def findBlamedCset(options, repo_dir, testRev):  # pylint: disable=invalid-name,
             cwd=os.getcwd(),
             stdout=subprocess.PIPE,
             timeout=300).stdout.decode("utf-8", errors="replace")
-        currRev = hg_helpers.get_cset_hash_from_bisect_msg(
+        currRev = vcs_helpers.get_cset_hash_from_bisect_msg(
             mid_bisect_output.split("\n"))
 
     iterNum = 1
@@ -274,7 +274,7 @@ def findBlamedCset(options, repo_dir, testRev):  # pylint: disable=invalid-name,
                    check=True,
                    cwd=os.getcwd(),
                    timeout=999)
-    hg_helpers.destroyPyc(repo_dir)
+    vcs_helpers.destroyPyc(repo_dir)
 
     print(time.asctime(), flush=True)
 
@@ -367,8 +367,8 @@ def checkBlameParents(repo_dir, blamedRev, blamedGoodOrBad, labels, testRev, sta
         if labels.get(p) is None:
             print(flush=True)
             print(f"Oops! We didn't test rev {p}, a parent of the blamed revision! Let's do that now.", flush=True)
-            if not hg_helpers.isAncestor(repo_dir, startRepo, p) and \
-                    not hg_helpers.isAncestor(repo_dir, endRepo, p):
+            if not vcs_helpers.isAncestor(repo_dir, startRepo, p) and \
+                    not vcs_helpers.isAncestor(repo_dir, endRepo, p):
                 print(f"We did not test rev {p} because it is not a descendant of either {startRepo} or {endRepo}.",
                       flush=True)
                 # Note this in case we later decide the bisect result is wrong.
@@ -390,7 +390,7 @@ def checkBlameParents(repo_dir, blamedRev, blamedGoodOrBad, labels, testRev, sta
     # Explain why bisect blamed the merge.
     if bisectLied:
         if missedCommonAncestor:
-            ca = hg_helpers.findCommonAncestor(repo_dir, parents[0], parents[1])
+            ca = vcs_helpers.findCommonAncestor(repo_dir, parents[0], parents[1])
             print(flush=True)
             print("Bisect blamed the merge because our initial range did not include one", flush=True)
             print("of the parents.", flush=True)
@@ -457,7 +457,7 @@ def bisectLabel(hgPrefix, options, hgLabel, currRev, startRepo, endRepo):  # pyl
         print(sanitizeCsetMsg(outputResult, repo_dir), flush=True)
         print(flush=True)
         blamedGoodOrBad = m.group(1)
-        blamedRev = hg_helpers.get_cset_hash_from_bisect_msg(outputLines[1])
+        blamedRev = vcs_helpers.get_cset_hash_from_bisect_msg(outputLines[1])
         return blamedGoodOrBad, blamedRev, None, startRepo, endRepo
 
     if options.testInitialRevs:
@@ -466,11 +466,11 @@ def bisectLabel(hgPrefix, options, hgLabel, currRev, startRepo, endRepo):  # pyl
     # e.g. "Testing changeset 52121:573c5fa45cc4 (440 changesets remaining, ~8 tests)"
     sps.vdump(outputLines[0])
 
-    currRev = hg_helpers.get_cset_hash_from_bisect_msg(outputLines[0])
+    currRev = vcs_helpers.get_cset_hash_from_bisect_msg(outputLines[0])
     if currRev is None:
         print("Resetting to default revision...", flush=True)
         subprocess.run(hgPrefix + ["update", "-C", "default"], check=True)
-        hg_helpers.destroyPyc(repo_dir)
+        vcs_helpers.destroyPyc(repo_dir)
         raise Exception("hg did not suggest a changeset to test!")
 
     # Update the startRepo/endRepo values.

@@ -15,7 +15,7 @@ import platform
 import random
 import sys
 
-from ..util import hg_helpers
+from ..util import vcs_helpers
 
 DEFAULT_TREES_LOCATION = Path.home() / "trees"
 
@@ -192,7 +192,7 @@ def parse_shell_opts(args):
         assert (build_options.repo_dir / ".hg" / "hgrc").is_file()
 
         if build_options.patch_file:
-            hg_helpers.ensure_mq_enabled()
+            vcs_helpers.ensure_mq_enabled()
             assert build_options.patch_file.is_file()
     else:
         sys.exit(f"DEFAULT_TREES_LOCATION not found at: {DEFAULT_TREES_LOCATION}. Exiting...")

@@ -48,7 +48,7 @@ def test_shell_compile():
     build_opts = os.getenv("BUILD", default_parameters_debug)
 
     opts_parsed = js.build_options.parse_shell_opts(build_opts)
-    hg_hash_of_default = util.hg_helpers.get_repo_hash_and_id(opts_parsed.repo_dir)[0]
+    hg_hash_of_default = util.vcs_helpers.get_repo_hash_and_id(opts_parsed.repo_dir)[0]
     # Ensure exit code is 0
     assert not js.compile_shell.CompiledShell(opts_parsed, hg_hash_of_default).run(["-b", build_opts])
 
