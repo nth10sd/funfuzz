@@ -54,80 +54,6 @@ def ensure_mq_enabled():
         raise
 
 
-def findCommonAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
-    """Find the common ancestor among two changesets
-
-    Args:
-        repo_dir (Path): Repository directory
-        a (str): First changeset
-        b (str): Second changeset
-
-    Raises:
-        OSError: Raises if a git repository is input
-
-    Returns:
-        str: Common ancestor changeset
-    """
-    if is_git_repo(repo_dir):
-        raise OSError("This function does not support git yet")
-    return subprocess.run(
-        ["hg", "-R", str(repo_dir), "log", "-r", f"ancestor({a},{b})", "--template={node|short}"],
-        cwd=os.getcwd(),
-        check=True,
-        stdout=subprocess.PIPE,
-        timeout=999,
-        ).stdout.decode("utf-8", errors="replace")
-
-
-def is_git_repo(repo_dir):
-    """Checks if folder is a git repository.
-
-    Args:
-        repo_dir (Path): Repository directory
-
-    Returns:
-        bool: True if folder is a git repository, False otherwise
-    """
-    return (repo_dir / ".git" / "config").is_file()
-
-
-def is_hg_repo(repo_dir):
-    """Checks if folder is a hg repository.
-
-    Args:
-        repo_dir (Path): Repository directory
-
-    Returns:
-        bool: True if folder is a hg repository, False otherwise
-    """
-    return (repo_dir / ".hg" / "hgrc").is_file()
-
-
-def isAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
-    """Checks iff |a| is an ancestor of |b|. Mercurial throws if |a| or |b| does not exist.
-
-    Args:
-        repo_dir (Path): Repository directory
-        a (str): First changeset
-        b (str): Second changeset
-
-    Raises:
-        OSError: Raises if a git repository is input
-
-    Returns:
-        bool: True iff |a| is an ancestor of |b|, False otherwise
-    """
-    if is_git_repo(repo_dir):
-        raise OSError("This function does not support git yet")
-    return subprocess.run(
-        ["hg", "-R", str(repo_dir), "log", "-r", f"{a} and ancestor({a},{b})", "--template={node|short}"],
-        cwd=os.getcwd(),
-        check=True,
-        stdout=subprocess.PIPE,
-        timeout=999,
-        ).stdout.decode("utf-8", errors="replace") != ""
-
-
 def existsAndIsAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
     """Checks iff |a| exists and is an ancestor of |b|.
     Note that if |a| is the same as |b|, it will return True
@@ -155,6 +81,31 @@ def existsAndIsAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
         timeout=999,
         ).stdout.decode("utf-8", errors="replace")
     return out != "" and out.find("abort: unknown revision") < 0
+
+
+def findCommonAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
+    """Find the common ancestor among two changesets
+
+    Args:
+        repo_dir (Path): Repository directory
+        a (str): First changeset
+        b (str): Second changeset
+
+    Raises:
+        OSError: Raises if a git repository is input
+
+    Returns:
+        str: Common ancestor changeset
+    """
+    if is_git_repo(repo_dir):
+        raise OSError("This function does not support git yet")
+    return subprocess.run(
+        ["hg", "-R", str(repo_dir), "log", "-r", f"ancestor({a},{b})", "--template={node|short}"],
+        cwd=os.getcwd(),
+        check=True,
+        stdout=subprocess.PIPE,
+        timeout=999,
+        ).stdout.decode("utf-8", errors="replace")
 
 
 def get_cset_hash_from_bisect_msg(msg):
@@ -231,26 +182,53 @@ def get_repo_hash_and_id(repo_dir, repo_rev="parents() and default"):
     return hg_id_hash, hg_id_local_num, is_on_default
 
 
-def vcs_repo_name(repo_dir):
-    """Look in the hgrc file in .hg/ (Mercurial), or config file in .git/ (Git) and return the name.
+def is_git_repo(repo_dir):
+    """Checks if folder is a git repository.
 
     Args:
         repo_dir (Path): Repository directory
 
     Returns:
-        str: Returns the name of the repository
+        bool: True if folder is a git repository, False otherwise
     """
-    name = ""
-    cfg_file = configparser.ConfigParser()
-    if is_git_repo(repo_dir):
-        cfg_file.read(str(repo_dir / ".git" / "config"))
-        name = [i for i in cfg_file.get('remote "origin"', "url").split("/") if i][-1].split(".git")[0]
-    if is_hg_repo(repo_dir):
-        cfg_file.read(str(repo_dir / ".hg" / "hgrc"))
-        # Not all default entries in [paths] end with "/".
-        name = [i for i in cfg_file.get("paths", "default").split("/") if i][-1]
+    return (repo_dir / ".git" / "config").is_file()
 
-    return name
+
+def is_hg_repo(repo_dir):
+    """Checks if folder is a hg repository.
+
+    Args:
+        repo_dir (Path): Repository directory
+
+    Returns:
+        bool: True if folder is a hg repository, False otherwise
+    """
+    return (repo_dir / ".hg" / "hgrc").is_file()
+
+
+def isAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
+    """Checks iff |a| is an ancestor of |b|. Mercurial throws if |a| or |b| does not exist.
+
+    Args:
+        repo_dir (Path): Repository directory
+        a (str): First changeset
+        b (str): Second changeset
+
+    Raises:
+        OSError: Raises if a git repository is input
+
+    Returns:
+        bool: True iff |a| is an ancestor of |b|, False otherwise
+    """
+    if is_git_repo(repo_dir):
+        raise OSError("This function does not support git yet")
+    return subprocess.run(
+        ["hg", "-R", str(repo_dir), "log", "-r", f"{a} and ancestor({a},{b})", "--template={node|short}"],
+        cwd=os.getcwd(),
+        check=True,
+        stdout=subprocess.PIPE,
+        timeout=999,
+        ).stdout.decode("utf-8", errors="replace") != ""
 
 
 def patch_hg_repo_with_mq(patch_file, repo_dir=None):
@@ -340,3 +318,25 @@ def qpop_qrm_applied_patch(patch_file, repo_dir):
     print("Patch qpop'ed...", end=" ")
     subprocess.run(["hg", "-R", str(repo_dir), "qdelete", str(patch_file.name)], check=True)
     print("Patch qdelete'd.")
+
+
+def vcs_repo_name(repo_dir):
+    """Look in the hgrc file in .hg/ (Mercurial), or config file in .git/ (Git) and return the name.
+
+    Args:
+        repo_dir (Path): Repository directory
+
+    Returns:
+        str: Returns the name of the repository
+    """
+    name = ""
+    cfg_file = configparser.ConfigParser()
+    if is_git_repo(repo_dir):
+        cfg_file.read(str(repo_dir / ".git" / "config"))
+        name = [i for i in cfg_file.get('remote "origin"', "url").split("/") if i][-1].split(".git")[0]
+    if is_hg_repo(repo_dir):
+        cfg_file.read(str(repo_dir / ".hg" / "hgrc"))
+        # Not all default entries in [paths] end with "/".
+        name = [i for i in cfg_file.get("paths", "default").split("/") if i][-1]
+
+    return name
