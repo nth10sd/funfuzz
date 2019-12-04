@@ -217,7 +217,7 @@ class CompiledShell:  # pylint: disable=too-many-instance-attributes,too-many-pu
         self.js_objdir = objdir
 
     def get_repo_dir(self):
-        """Retrieve the directory of a Mercurial repository.
+        """Retrieve the directory of a repository.
 
         Returns:
             Path: Full path to the repository
