@@ -59,6 +59,30 @@ def findCommonAncestor(repo_dir, a, b):  # pylint: disable=invalid-name,missing-
         ).stdout.decode("utf-8", errors="replace")
 
 
+def is_git_repo(repo_dir):
+    """Checks if folder is a git repository.
+
+    Args:
+        repo_dir (Path): Repository directory
+
+    Returns:
+        bool: True if folder is a git repository, False otherwise
+    """
+    return (repo_dir / ".git" / "config").is_file()
+
+
+def is_hg_repo(repo_dir):
+    """Checks if folder is a hg repository.
+
+    Args:
+        repo_dir (Path): Repository directory
+
+    Returns:
+        bool: True if folder is a hg repository, False otherwise
+    """
+    return (repo_dir / ".hg" / "hgrc").is_file()
+
+
 def isAncestor(repo_dir, a, b):  # pylint: disable=invalid-name,missing-param-doc,missing-return-doc
     # pylint: disable=missing-return-type-doc,missing-type-doc
     """Return true iff |a| is an ancestor of |b|. Throw if |a| or |b| does not exist."""

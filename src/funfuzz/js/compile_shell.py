@@ -445,7 +445,7 @@ def cfgBin(shell):  # pylint: disable=invalid-name,missing-param-doc,missing-rai
     cfg_cmds.append("--enable-debug-symbols")  # gets debug symbols on opt shells
     cfg_cmds.append("--disable-tests")
 
-    if (
+    if vcs_helpers.is_hg_repo(shell.get_repo_dir()) and (  # pylint: disable=too-many-boolean-expressions
             (
                 shell.build_opts.enableAddressSanitizer and
                 # Disable cranelift on ASan builds if repository revision is on/after:

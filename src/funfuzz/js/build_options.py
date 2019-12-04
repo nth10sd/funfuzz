@@ -152,11 +152,14 @@ def addParserOptions():  # pylint: disable=invalid-name,missing-return-doc,missi
     return parser, randomizer
 
 
-def parse_shell_opts(args):
+def parse_shell_opts(args):  # pylint: disable=too-complex,too-many-branches
     """Parses shell options into a build_options object.
 
     Args:
         args (object): Arguments to be parsed
+
+    Raises:
+        OSError: Raises if patches are attempted to be tested in a git repository
 
     Returns:
         build_options: An immutable build_options object
@@ -189,11 +192,12 @@ def parse_shell_opts(args):
             if not build_options.repo_dir.is_dir():
                 sys.exit("repo_dir is not specified, and a default repository location cannot be confirmed. Exiting...")
 
-        assert (build_options.repo_dir / ".hg" / "hgrc").is_file()
-
         if build_options.patch_file:
-            vcs_helpers.ensure_mq_enabled()
-            assert build_options.patch_file.is_file()
+            if vcs_helpers.is_hg_repo(build_options.repo_dir):
+                vcs_helpers.ensure_mq_enabled()
+                assert build_options.patch_file.is_file()
+            elif vcs_helpers.is_git_repo(build_options.repo_dir):
+                raise OSError("No patching of Git repositories support yet")
     else:
         sys.exit(f"DEFAULT_TREES_LOCATION not found at: {DEFAULT_TREES_LOCATION}. Exiting...")
 
