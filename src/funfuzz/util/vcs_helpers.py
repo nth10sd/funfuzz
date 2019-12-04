@@ -17,16 +17,22 @@ import sys
 from . import subprocesses as sps
 
 
-def destroyPyc(repo_dir):  # pylint: disable=invalid-name,missing-docstring
-    # This is roughly equivalent to ["hg", "purge", "--all", "--include=**.pyc"])
-    # but doesn't run into purge's issues (incompatbility with -R, requiring an hg extension)
+def destroyPyc(repo_dir):  # pylint: disable=invalid-name
+    """Removes all *.pyc files in a repository directory.
+    This is roughly equivalent to ["hg", "purge", "--all", "--include=**.pyc"]),
+    but doesn't run into purge's issues (incompatbility with -R, requiring an hg extension)
+
+    Args:
+        repo_dir (Path): Repository directory
+    """
     for root, dirs, files in os.walk(str(repo_dir)):
         for fn in files:  # pylint: disable=invalid-name
             if fn.endswith(".pyc"):
                 (Path(root) / fn).unlink()
-        if ".hg" in dirs:
-            # Don't visit .hg dir
+        if ".hg" in dirs:  # Don't visit .hg dir
             dirs.remove(".hg")
+        elif ".git" in dirs:  # Don't visit .git dir
+            dirs.remove(".git")
 
 
 def ensure_mq_enabled():
@@ -48,8 +54,22 @@ def ensure_mq_enabled():
         raise
 
 
-def findCommonAncestor(repo_dir, a, b):  # pylint: disable=invalid-name,missing-docstring,missing-return-doc
-    # pylint: disable=missing-return-type-doc
+def findCommonAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
+    """Find the common ancestor among two changesets
+
+    Args:
+        repo_dir (Path): Repository directory
+        a (str): First changeset
+        b (str): Second changeset
+
+    Raises:
+        OSError: Raises if a git repository is input
+
+    Returns:
+        str: Common ancestor changeset
+    """
+    if is_git_repo(repo_dir):
+        raise OSError("This function does not support git yet")
     return subprocess.run(
         ["hg", "-R", str(repo_dir), "log", "-r", f"ancestor({a},{b})", "--template={node|short}"],
         cwd=os.getcwd(),
@@ -83,9 +103,22 @@ def is_hg_repo(repo_dir):
     return (repo_dir / ".hg" / "hgrc").is_file()
 
 
-def isAncestor(repo_dir, a, b):  # pylint: disable=invalid-name,missing-param-doc,missing-return-doc
-    # pylint: disable=missing-return-type-doc,missing-type-doc
-    """Return true iff |a| is an ancestor of |b|. Throw if |a| or |b| does not exist."""
+def isAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
+    """Checks iff |a| is an ancestor of |b|. Mercurial throws if |a| or |b| does not exist.
+
+    Args:
+        repo_dir (Path): Repository directory
+        a (str): First changeset
+        b (str): Second changeset
+
+    Raises:
+        OSError: Raises if a git repository is input
+
+    Returns:
+        bool: True iff |a| is an ancestor of |b|, False otherwise
+    """
+    if is_git_repo(repo_dir):
+        raise OSError("This function does not support git yet")
     return subprocess.run(
         ["hg", "-R", str(repo_dir), "log", "-r", f"{a} and ancestor({a},{b})", "--template={node|short}"],
         cwd=os.getcwd(),
@@ -95,11 +128,24 @@ def isAncestor(repo_dir, a, b):  # pylint: disable=invalid-name,missing-param-do
         ).stdout.decode("utf-8", errors="replace") != ""
 
 
-def existsAndIsAncestor(repo_dir, a, b):  # pylint: disable=invalid-name,missing-param-doc,missing-return-doc
-    # pylint: disable=missing-return-type-doc,missing-type-doc
-    """Return true iff |a| exists and is an ancestor of |b|."""
-    # Note that if |a| is the same as |b|, it will return True
-    # Takes advantage of "id(badhash)" being the empty set, in contrast to just "badhash", which is an error
+def existsAndIsAncestor(repo_dir, a, b):  # pylint: disable=invalid-name
+    """Checks iff |a| exists and is an ancestor of |b|.
+    Note that if |a| is the same as |b|, it will return True
+    Takes advantage of "id(badhash)" being the empty set, in contrast to just "badhash", which is an error
+
+    Args:
+        repo_dir (Path): Repository directory
+        a (str): First changeset
+        b (str): Second changeset
+
+    Raises:
+        OSError: Raises if a git repository is input
+
+    Returns:
+        bool: True iff |a| exists and is an ancestor of |b|, False otherwise
+    """
+    if is_git_repo(repo_dir):
+        raise OSError("This function does not support git yet")
     out = subprocess.run(
         ["hg", "-R", str(repo_dir), "log", "-r", f"{a} and ancestor({a},{b})", "--template={node|short}"],
         check=False,
@@ -117,11 +163,11 @@ def get_cset_hash_from_bisect_msg(msg):
     Args:
         msg (str): Bisection output message.
 
-    Returns:
-        str: Changeset hash.
-
     Raises:
         ValueError: If required bisection output format does not allow changeset hash to be extracted properly.
+
+    Returns:
+        str: Changeset hash.
     """
     rgx = re.compile(r"(^|.* )(\d+):(\w{12}).*")
     matched = rgx.match(msg)
@@ -208,11 +254,14 @@ def patch_hg_repo_with_mq(patch_file, repo_dir=None):
         repo_dir (Path): Working directory path
 
     Raises:
+        OSError: Raises if a git repository is input
         OSError: Raises when `hg qimport` or `hg qpush` did not return a return code of 0
 
     Returns:
         str: Returns the name of the patch file
     """
+    if is_git_repo(repo_dir):
+        raise OSError("This function does not support git yet")
     repo_dir = str(repo_dir) or (
         os.getcwd())
     # We may have passed in the patch with or without the full directory.
@@ -264,8 +313,11 @@ def qpop_qrm_applied_patch(patch_file, repo_dir):
         repo_dir (Path): Working directory path
 
     Raises:
+        OSError: Raises if a git repository is input
         OSError: Raises when `hg qpop` did not return a return code of 0
     """
+    if is_git_repo(repo_dir):
+        raise OSError("This function does not support git yet")
     qpop_result = subprocess.run(
         ["hg", "-R", str(repo_dir), "qpop"],
         check=False,
