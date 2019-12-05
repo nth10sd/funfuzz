@@ -35,10 +35,11 @@ def parseOpts(args):  # pylint: disable=invalid-name,missing-docstring,missing-r
     parser = OptionParser()
     parser.disable_interspersed_args()
     parser.add_option("--compare-jit",
-                      action="store_true", dest="use_compare_jit",
-                      default=False,
+                      action="store", dest="use_compare_jit",
+                      default="",
                       help="After running the fuzzer, run the FCM lines against the engine "
-                           "in two configurations and compare the output.")
+                           "in two configurations and compare the output, if no engine is specified. "
+                           "If specified, output comparisons are also done with second specified JS engine binary.")
     parser.add_option("--random-flags",
                       action="store_true", dest="randomFlags",
                       default=False,

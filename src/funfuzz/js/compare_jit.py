@@ -128,6 +128,13 @@ def compareLevel(jsEngine, flags, infilename, logPrefix, options, showDetailedDi
         combos.insert(0, flags)
 
     commands = [[jsEngine] + combo + [str(infilename)] for combo in combos]
+    # Start testing compare_jit testing with another binary earlier in the combination
+    commands = [commands[0]] + [[Path(os.path.join(
+        os.path.expanduser("~"),
+        "shell-cache",
+        "js-dbg-64-dm-linux-x86_64-62e3b95ed76dbb6e2150ae991b6841f6743b5b86",
+        "js-dbg-64-dm-linux-x86_64-62e3b95ed76dbb6e2150ae991b6841f6743b5b86",
+    ))] + combo + [str(infilename)] for combo in combos] + commands[1:]
 
     r0 = None
     prefix0 = None
