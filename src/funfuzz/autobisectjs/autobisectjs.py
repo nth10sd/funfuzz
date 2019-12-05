@@ -148,7 +148,7 @@ def parseOpts():  # pylint: disable=invalid-name,missing-docstring,missing-retur
 
     if not options.useTreeherderBinaries:
         # pylint: disable=invalid-name
-        earliestKnown = vcs_helpers.get_repo_hash_and_id(options.build_options.repo_dir, repo_rev=earliestKnownQuery)[0]
+        earliestKnown = vcs_helpers.get_repo_hash_and_id(options.build_options.repo_dir, repo_rev=earliestKnownQuery)
 
     if options.startRepo is None:
         if options.useTreeherderBinaries:
@@ -182,9 +182,9 @@ def findBlamedCset(options, repo_dir, testRev):  # pylint: disable=invalid-name,
 
     # Resolve names such as "tip", "default", or "52707" to stable hg hash ids, e.g. "9f2641871ce8".
     # pylint: disable=invalid-name
-    realStartRepo = sRepo = vcs_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.startRepo)[0]
+    realStartRepo = sRepo = vcs_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.startRepo)
     # pylint: disable=invalid-name
-    realEndRepo = eRepo = vcs_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.endRepo)[0]
+    realEndRepo = eRepo = vcs_helpers.get_repo_hash_and_id(repo_dir, repo_rev=options.endRepo)
     sps.vdump(f"Bisecting in the range {sRepo}:{eRepo}")
 
     # Refresh source directory (overwrite all local changes) to default tip if required.

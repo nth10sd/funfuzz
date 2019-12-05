@@ -127,7 +127,7 @@ class CompiledShell:  # pylint: disable=too-many-instance-attributes,too-many-pu
             if options.revision:
                 shell = CompiledShell(options.build_opts, options.revision)
             else:
-                local_orig_hg_hash = vcs_helpers.get_repo_hash_and_id(options.build_opts.repo_dir)[0]
+                local_orig_hg_hash = vcs_helpers.get_repo_hash_and_id(options.build_opts.repo_dir)
                 shell = CompiledShell(options.build_opts, local_orig_hg_hash)
 
             obtainShell(shell, updateToRev=options.revision)

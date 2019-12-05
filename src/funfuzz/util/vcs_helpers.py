@@ -127,8 +127,40 @@ def get_cset_hash_from_bisect_msg(msg):
     raise ValueError(f"Bisection output format required for hash extraction unavailable. The variable msg is: {msg}")
 
 
-def get_repo_hash_and_id(repo_dir, repo_rev="parents() and default"):
-    """Return the repository hash and id, and whether it is on default.
+def get_git_repo_hash_and_id(repo_dir):
+    """Return the Git repository hash.
+
+    Args:
+        repo_dir (Path): Full path to the repository
+
+    Raises:
+        ValueError: Raises if Git repository has a detached HEAD
+
+    Returns:
+        str: Changeset hash
+    """
+    # This returns null if the repository is not on default.
+    git_branch_cmds = ["git", "-C", str(repo_dir), "branch"]
+    git_branch_result = subprocess.run(
+        git_branch_cmds,
+        cwd=os.getcwd(),
+        check=True,
+        stdout=subprocess.PIPE,
+        timeout=99,
+        ).stdout.decode("utf-8", errors="replace")
+    if "detached at" in git_branch_result:
+        raise ValueError("Git repository has a detached HEAD")
+    return subprocess.run(
+        ["git", "-C", str(repo_dir), "rev-parse", "HEAD"],
+        cwd=os.getcwd(),
+        check=True,
+        stdout=subprocess.PIPE,
+        timeout=99,
+        ).stdout.decode("utf-8", errors="replace").rstrip()
+
+
+def get_hg_repo_hash_and_id(repo_dir, repo_rev):
+    """Return the Mercurial repository hash.
 
     It will also ask what the user would like to do, should the repository not be on default.
 
@@ -140,7 +172,7 @@ def get_repo_hash_and_id(repo_dir, repo_rev="parents() and default"):
         ValueError: Raises if the input is invalid
 
     Returns:
-        tuple: Changeset hash, local numerical ID, boolean on whether the repository is on default tip
+        str: Changeset hash
     """
     # This returns null if the repository is not on default.
     hg_log_template_cmds = ["hg", "-R", str(repo_dir), "log", "-r", repo_rev,
@@ -177,9 +209,31 @@ def get_repo_hash_and_id(repo_dir, repo_rev="parents() and default"):
             timeout=99,
             ).stdout.decode("utf-8", errors="replace")
     assert hg_id_full != ""
-    (hg_id_hash, hg_id_local_num) = hg_id_full.split(" ")
+    hg_id_hash = hg_id_full.split(" ")[0]
     sps.vdump("Finished getting the hash and local id number of the repository.")
-    return hg_id_hash, hg_id_local_num, is_on_default
+    return hg_id_hash
+
+
+def get_repo_hash_and_id(repo_dir, repo_rev="parents() and default"):
+    """Return the repository hash and id, and whether it is on default.
+
+    It will also ask what the user would like to do, should the repository not be on default.
+
+    Args:
+        repo_dir (Path): Full path to the repository
+        repo_rev (str): Intended Mercurial changeset details to retrieve (Not needed for Git)
+
+    Raises:
+        OSError: Raises if repository directory is neither Mercurial nor Git
+
+    Returns:
+        str: Changeset hash
+    """
+    if is_git_repo(repo_dir):
+        return get_git_repo_hash_and_id(repo_dir)
+    if is_hg_repo(repo_dir):
+        return get_hg_repo_hash_and_id(repo_dir, repo_rev)
+    raise OSError("Unknown repository type")
 
 
 def is_git_repo(repo_dir):
