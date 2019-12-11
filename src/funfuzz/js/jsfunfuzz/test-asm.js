@@ -149,12 +149,12 @@
 
 //   while (true) {
 //     var stompStr = makeRegisterStompFunction(8, [], true);
-//     print(stompStr);
+//     dumpln(stompStr);
 //     pureForeign.stomp = eval(stompStr); /* eslint-disable-line no-eval */
 
 //     for (var i = 0; i < 100; ++i) {
 //       var interior = generateAsmDifferential();
-//       print(interior);
+//       dumpln(interior);
 //       testAsmDifferential(this, interior);
 //     }
 //     gc();

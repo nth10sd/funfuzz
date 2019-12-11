@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global print, quit, uneval */
+/* global quit, uneval */
 
 import {
   dumpln,
@@ -88,12 +88,12 @@ var builtinObjects = {}; // { "Array.prototype": ["sort", "length", ...], ... }
   exploreDeeper(Proxy, "Proxy");
 
   if (debugMode) {
-    for (let x of constructors) print(`^^^^^ ${x}`);
-    for (let x of builtinProperties) print(`***** ${x}`);
-    for (let x of builtinFunctions) print(`===== ${x}`);
-    for (let x of allMethodNames) print(`!!!!! ${x}`);
-    for (let x of allPropertyNames) print(`&&&&& ${x}`);
-    print(uneval(builtinObjects));
+    for (let x of constructors) dumpln(`^^^^^ ${x}`);
+    for (let x of builtinProperties) dumpln(`***** ${x}`);
+    for (let x of builtinFunctions) dumpln(`===== ${x}`);
+    for (let x of allMethodNames) dumpln(`!!!!! ${x}`);
+    for (let x of allPropertyNames) dumpln(`&&&&& ${x}`);
+    dumpln(uneval(builtinObjects));
     quit();
   }
 })(this, false);

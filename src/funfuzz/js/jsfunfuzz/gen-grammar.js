@@ -626,7 +626,7 @@ function addPropertyName(p)
       p !== "random" &&
       p !== "parent" && // unsafe spidermonkey shell function, see bug 619064
       true) {
-    print(`Adding: ${p}`);
+    dumpln(`Adding: ${p}`);
     allPropertyNames.push(p);
   }
 }

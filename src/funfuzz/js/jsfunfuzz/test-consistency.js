@@ -31,7 +31,7 @@ function sandboxResult (code, zone) { /* eslint-disable-line require-jsdoc */
   } catch (e) {
     result = `Error: ${errorToString(e)}`;
   }
-  // print(`resultStr: ${resultStr}`);
+  // dumpln(`resultStr: ${resultStr}`);
   return resultStr;
 }
 
@@ -50,7 +50,7 @@ export function nestingConsistencyTest (code) { /* eslint-disable-line require-j
   var resultO = sandboxResult(codeNestedOnce, null); var resultD = sandboxResult(codeNestedDeep, null);
 
   // if (resultO != "" && resultO != "undefined" && resultO != "use strict")
-  //   print(`NestTest: ${resultO}`);
+  //   dumpln(`NestTest: ${resultO}`);
 
   if (resultO !== resultD) {
     foundABug("NestTest mismatch",

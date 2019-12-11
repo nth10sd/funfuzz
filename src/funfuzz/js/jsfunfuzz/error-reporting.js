@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global print, quit */
+/* global quit */
 
 import {
   dumpln,
@@ -14,9 +14,9 @@ function confused (s) { /* eslint-disable-line require-jsdoc */
   if (jsshell) {
     // Magic string that js_interesting looks for
     // Currently disabled until its use can be figured out
-    // print("jsfunfuzz broke" + " its own scripting environment: " + s);
+    // dumpln("jsfunfuzz broke" + " its own scripting environment: " + s);
     // Replaced with the following:
-    print(`jsfunfuzz got confused: ${s}`);
+    dumpln(`jsfunfuzz got confused: ${s}`);
     quit();
   }
 }
@@ -45,10 +45,10 @@ function errorToString (e) { /* eslint-disable-line require-jsdoc */
 }
 
 function errorstack () { /* eslint-disable-line no-unused-vars, require-jsdoc */
-  print("EEE");
+  dumpln("EEE");
   try {
     void ([].qwerty.qwerty);
-  } catch (e) { print(e.stack); }
+  } catch (e) { dumpln(e.stack); }
 }
 
 export {

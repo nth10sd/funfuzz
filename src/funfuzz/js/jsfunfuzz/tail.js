@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global print, uneval */
+/* global uneval */
 
 import {
   ENGINE_SPIDERMONKEY_TRUNK,
@@ -52,7 +52,7 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
       testOne();
       var elapsed1 = new Date() - lastTime;
       if (elapsed1 > 1000) {
-        print(`That took ${elapsed1}ms!`);
+        dumpln(`That took ${elapsed1}ms!`);
       }
       lastTime = new Date();
     } while (lastTime - startTime < MAX_TOTAL_TIME);
@@ -90,7 +90,7 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
 
     if (count === 1 && engine === ENGINE_SPIDERMONKEY_TRUNK && rnd(5)) {
       code = `tryRunning = useSpidermonkeyShellSandbox(${rnd(4)});`;
-      // print("Sane mode!")
+      // dumpln("Sane mode!")
     }
 
     //  if (rnd(10) === 1) {
@@ -115,6 +115,6 @@ function start (glob) { /* eslint-disable-line require-jsdoc */
 start(this);
 // SPLICE DDEND
 
-if (jsshell) { print("It's looking good!"); } // Magic string that js_interesting looks for
+if (jsshell) { dumpln("It's looking good!"); } // Magic string that js_interesting looks for
 
 // 3. Run it.

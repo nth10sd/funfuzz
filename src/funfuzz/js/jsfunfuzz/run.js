@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global disassemble, gc, gczeal, getBuildConfiguration, print, resetOOMFailure, uneval */
+/* global disassemble, gc, gczeal, getBuildConfiguration, resetOOMFailure, uneval */
 
 import {
   ENGINE_SPIDERMONKEY_TRUNK,
@@ -47,7 +47,7 @@ function newGeckoSandbox (n) { /* eslint-disable-line require-jsdoc */
   s.evalInSandbox = function (str, sbx) {
     return Components.utils.evalInSandbox(str, sbx); /* eslint-disable-line no-undef */
   };
-  s.print = function (str) { print(str); };
+  s.print = function (str) { dumpln(str); };
 
   return s;
 }

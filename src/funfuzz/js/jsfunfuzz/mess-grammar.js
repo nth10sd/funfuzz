@@ -2,12 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/* global print */
-
 import {
   Random,
   rnd
 } from "./random.js";
+import { dumpln } from "./detect-engine.js";
 
 // Randomly ignore the grammar 1 in TOTALLY_RANDOM times we generate any grammar node.
 var TOTALLY_RANDOM = 1000;
@@ -20,8 +19,8 @@ function totallyRandom (d, b) { /* eslint-disable-line require-jsdoc */
   var maker = Random.index(allMakers);
   var val = maker(d, b);
   if (typeof val !== "string") {
-    print(maker.name);
-    print(maker);
+    dumpln(maker.name);
+    dumpln(maker);
     throw new Error("We generated something that isn't a string!");
   }
   return val;

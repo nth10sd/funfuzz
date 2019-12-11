@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 /* exported readline */
-/* global gc, print, readline:writable, uneval:writable */
+/* global gc, readline:writable, uneval:writable */
 
 import octo from "@mozillasecurity/octo";
 import { rnd } from "./random.js";
@@ -23,7 +23,7 @@ var xpcshell = jsshell && (typeof Components === "object");
 var dumpln;
 var printImportant;
 
-dumpln = print;
+dumpln = console.log;
 printImportant = function (s) { dumpln("***"); dumpln(s); };
 if (typeof verifyprebarriers === "function") {
   // Run a diff between the help() outputs of different js shells.

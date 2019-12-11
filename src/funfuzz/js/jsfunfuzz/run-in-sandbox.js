@@ -58,11 +58,11 @@ function fillShellSandbox (sandbox) { /* eslint-disable-line require-jsdoc */
   for (var i = 0; i < safeFuns.length; ++i) {
     var fn = safeFuns[i];
     if (sandbox[fn]) {
-      // print(`Target already has ${fn}`);
+      // dumpln(`Target already has ${fn}`);
     } else if (this[fn]) { // FIXME: strict mode compliance requires passing glob around
       sandbox[fn] = this[fn].bind(this);
     } else {
-      // print(`Source is missing ${fn}`);
+      // dumpln(`Source is missing ${fn}`);
     }
   }
 
