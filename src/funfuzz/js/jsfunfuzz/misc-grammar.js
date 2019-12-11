@@ -5,12 +5,12 @@
 import {
   Random,
   rnd
-} from "./random";
+} from "./random.js";
 import {
   TOTALLY_RANDOM,
   totallyRandom
-} from "./mess-grammar";
-import { cat } from "./mess-tokens";
+} from "./mess-grammar.js";
+import { cat } from "./mess-tokens.js";
 
 const NUM_MATH_FUNCTIONS = 6;
 

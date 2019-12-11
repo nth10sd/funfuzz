@@ -7,7 +7,7 @@
 import {
   dumpln,
   jsshell
-} from "./detect-engine";
+} from "./detect-engine.js";
 
 /*
         It might be more interesting to use Object.getOwnPropertyDescriptor to find out if

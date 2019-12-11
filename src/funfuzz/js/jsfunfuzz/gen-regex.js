@@ -5,8 +5,10 @@
 import {
   Random,
   rnd
-} from "./random";
-import { utils } from "@mozillasecurity/octo";
+} from "./random.js";
+import octo from "@mozillasecurity/octo";
+
+const { utils } = octo; // octo on npm is still in commonjs
 
 /* ***************************** *
  * GENERATING REGEXPS AND INPUTS *

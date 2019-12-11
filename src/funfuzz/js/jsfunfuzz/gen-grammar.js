@@ -11,7 +11,7 @@ import {
   loopCount,
   loopModulo,
   xpcshell
-} from "./detect-engine";
+} from "./detect-engine.js";
 import {
   NUM_MATH_FUNCTIONS,
   binaryOps,
@@ -25,21 +25,21 @@ import {
   typedArrayConstructors,
   varBinder,
   varBinderFor
-} from "./misc-grammar";
+} from "./misc-grammar.js";
 import {
   POTENTIAL_MATCHES,
   randomRegexFlags,
   regexPattern,
   toRegexSource
-} from "./gen-regex";
+} from "./gen-regex.js";
 import {
   Random,
   rnd
-} from "./random";
+} from "./random.js";
 import {
   TOTALLY_RANDOM,
   totallyRandom
-} from "./mess-grammar";
+} from "./mess-grammar.js";
 import {
   allMethodNames,
   allPropertyNames,
@@ -48,22 +48,22 @@ import {
   builtinObjects,
   builtinProperties,
   constructors
-} from "./built-in-constructors";
+} from "./built-in-constructors.js";
 import {
   arrayBufferType,
   infrequentCondition
-} from "./gen-type-aware-code";
+} from "./gen-type-aware-code.js";
 import {
   binaryMathFunctions,
   binaryMathOps,
   leftUnaryMathOps,
   numericVals,
   unaryMathFunctions
-} from "./gen-math";
+} from "./gen-math.js";
 import {
   cat,
   stripSemicolon
-} from "./mess-tokens";
+} from "./mess-tokens.js";
 import {
   doubleLiteral,
   doubleVar,
@@ -74,14 +74,16 @@ import {
   intLiteralRange,
   intVar,
   parameterTypeAnnotations
-} from "./gen-asm";
+} from "./gen-asm.js";
 import {
   makeRegisterStompBody,
   makeRegisterStompFunction
-} from "./gen-stomp-on-registers";
-import { makeMathyFunRef } from "./test-math";
-import { makeUseRegressionTest } from "./randorderfuzz";
-import { utils } from "@mozillasecurity/octo";
+} from "./gen-stomp-on-registers.js";
+import { makeMathyFunRef } from "./test-math.js";
+import { makeUseRegressionTest } from "./randorderfuzz.js";
+import octo from "@mozillasecurity/octo";
+
+const { utils } = octo; // octo on npm is still in commonjs
 
 /* ************************ *
  * GRAMMAR-BASED GENERATION *

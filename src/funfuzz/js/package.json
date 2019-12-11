@@ -2,6 +2,7 @@
   "name": "jsfunfuzz",
   "version": "0.7.0a1",
   "description": "A fuzzer for testing the SpiderMonkey JavaScript engine",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MozillaSecurity/funfuzz.git"

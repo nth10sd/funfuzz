@@ -8,7 +8,7 @@ import {
   engine,
   gcIsQuiet,
   jsshell
-} from "./detect-engine";
+} from "./detect-engine.js";
 
 /* eslint-disable complexity, no-multi-spaces */
 function whatToTestSpidermonkeyTrunk (code) { /* eslint-disable-line require-jsdoc */

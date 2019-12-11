@@ -2,9 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { dumpln } from "./detect-engine";
-import { foundABug } from "./error-reporting";
-import { verbose } from "./driver";
+import { dumpln } from "./detect-engine.js";
+import { foundABug } from "./error-reporting.js";
+import { verbose } from "./driver.js";
 
 function testExpressionDecompiler (code) { /* eslint-disable-line require-jsdoc */
   var fullCode = `(function() { try { \n${code}\n; throw 1; } catch(exx) { this.nnn.nnn } })()`;

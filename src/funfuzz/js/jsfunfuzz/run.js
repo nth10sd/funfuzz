@@ -9,24 +9,24 @@ import {
   dumpln,
   engine,
   xpcshell
-} from "./detect-engine";
+} from "./detect-engine.js";
 import {
   confused,
   errorToString
-} from "./error-reporting";
+} from "./error-reporting.js";
 import {
   count,
   failsToCompileInTry,
   verbose
-} from "./driver";
+} from "./driver.js";
 import {
   testExpressionDecompiler,
   tryHalves
-} from "./test-misc";
-import { jsStrictMode } from "./preamble";
-import { nestingConsistencyTest } from "./test-consistency";
-import { strTimes } from "./misc-grammar";
-import { whatToTest } from "./avoid-known-bugs";
+} from "./test-misc.js";
+import { jsStrictMode } from "./preamble.js";
+import { nestingConsistencyTest } from "./test-consistency.js";
+import { strTimes } from "./misc-grammar.js";
+import { whatToTest } from "./avoid-known-bugs.js";
 
 var tryRunning;
 if (xpcshell) { // Adapted from ternary operator - this longer form helps reducers reduce better

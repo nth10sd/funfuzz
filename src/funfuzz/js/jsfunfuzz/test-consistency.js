@@ -7,8 +7,8 @@
 import {
   errorToString,
   foundABug
-} from "./error-reporting";
-import { count } from "./driver";
+} from "./error-reporting.js";
+import { count } from "./driver.js";
 
 /* *************************** *
  * EXECUTION CONSISTENCY TESTS *

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { rnd } from "./random";
+import { rnd } from "./random.js";
 
 function infrequentCondition (v, n) { /* eslint-disable-line require-jsdoc */
   switch (rnd(20)) {

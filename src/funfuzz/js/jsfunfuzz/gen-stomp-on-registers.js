@@ -5,7 +5,7 @@
 import {
   Random,
   rnd
-} from "./random";
+} from "./random.js";
 
 // Using up all the registers can find bugs where a caller does not store its
 // registers properly, or a callee violates an ABI.

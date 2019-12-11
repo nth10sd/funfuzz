@@ -7,12 +7,14 @@
 import {
   Random,
   rnd
-} from "./random";
+} from "./random.js";
 import {
   TOTALLY_RANDOM,
   totallyRandom
-} from "./mess-grammar";
-import { utils } from "@mozillasecurity/octo";
+} from "./mess-grammar.js";
+import octo from "@mozillasecurity/octo";
+
+const { utils } = octo; // octo on npm is still in commonjs
 
 function inlineTest (filename) { /* eslint-disable-line require-jsdoc */
   // Inline a regression test, adding NODIFF (to disable differential testing) if it calls a testing function that might throw.

@@ -10,15 +10,15 @@ import {
   engine,
   jsshell,
   printImportant
-} from "./detect-engine";
+} from "./detect-engine.js";
 import {
   Random,
   rnd
-} from "./random";
-import { count } from "./driver";
-import { makeScript } from "./gen-grammar";
-import { mathInitFCM } from "./test-math";
-import { tryItOut } from "./run";
+} from "./random.js";
+import { count } from "./driver.js";
+import { makeScript } from "./gen-grammar.js";
+import { mathInitFCM } from "./test-math.js";
+import { tryItOut } from "./run.js";
 
 function start (glob) { /* eslint-disable-line require-jsdoc */
   var fuzzSeed = Math.floor(Math.random() * Math.pow(2, 28));

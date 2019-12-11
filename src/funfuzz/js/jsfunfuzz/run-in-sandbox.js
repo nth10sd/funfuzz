@@ -4,8 +4,8 @@
 
 /* global evalcx, newGlobal */
 
-import { dumpln } from "./detect-engine";
-import { errorToString } from "./error-reporting";
+import { dumpln } from "./detect-engine.js";
+import { errorToString } from "./error-reporting.js";
 
 /* ***************** *
  * SANDBOXED RUNNING *

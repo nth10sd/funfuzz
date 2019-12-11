@@ -5,7 +5,7 @@
 import {
   Random,
   rnd
-} from "./random";
+} from "./random.js";
 
 /* *********************** *
  * GENERATE ASM.JS MODULES *

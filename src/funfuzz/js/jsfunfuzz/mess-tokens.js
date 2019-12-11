@@ -5,9 +5,9 @@
 import {
   Random,
   rnd
-} from "./random";
-import { dumpln } from "./detect-engine";
-import { totallyRandom } from "./mess-grammar";
+} from "./random.js";
+import { dumpln } from "./detect-engine.js";
+import { totallyRandom } from "./mess-grammar.js";
 
 // Each input to |cat| should be a token or so, OR a bigger logical piece (such as a call to makeExpr).  Smaller than a token is ok too ;)
 

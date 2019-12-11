@@ -7,10 +7,10 @@
 import {
   TOTALLY_RANDOM,
   totallyRandom
-} from "./mess-grammar";
-import { NUM_MATH_FUNCTIONS } from "./misc-grammar";
-import { errorToString } from "./error-reporting";
-import { rnd } from "./random";
+} from "./mess-grammar.js";
+import { NUM_MATH_FUNCTIONS } from "./misc-grammar.js";
+import { errorToString } from "./error-reporting.js";
+import { rnd } from "./random.js";
 
 function hashStr (s) { /* eslint-disable-line require-jsdoc */
   var hash = 0;

@@ -8,7 +8,7 @@ import {
   dumpln,
   jsshell,
   printImportant
-} from "./detect-engine";
+} from "./detect-engine.js";
 
 function confused (s) { /* eslint-disable-line require-jsdoc */
   if (jsshell) {

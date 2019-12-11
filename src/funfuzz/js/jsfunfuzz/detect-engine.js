@@ -5,8 +5,10 @@
 /* exported readline */
 /* global gc, print, readline:writable, uneval:writable */
 
-import { rnd } from "./random";
-import { utils } from "@mozillasecurity/octo";
+import octo from "@mozillasecurity/octo";
+import { rnd } from "./random.js";
+
+const { utils } = octo; // octo on npm is still in commonjs
 
 // jsfunfuzz is best run in a command-line shell.  It can also run in
 // a web browser, but you might have trouble reproducing bugs that way.
