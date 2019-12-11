@@ -34,6 +34,7 @@ function makeScriptForEval (d, b) { /* eslint-disable-line require-jsdoc */
     case 0:  return makeExpr(d - 1, b);
     case 1:  return makeStatement(d - 1, b);
     case 2:  return makeUseRegressionTest(d, b);
+    case 3:  return makeClass(d - 1, b);
     default: return makeScript(d - 3, b);
     /* eslint-enable no-multi-spaces */
   }
@@ -730,6 +731,7 @@ var exprMakers =
 
   // Other left-unary operators
   function (d, b) { return cat([Random.index(leftUnaryOps), makeExpr(d, b)]); },
+  function (d, b) { return cat([Random.index(leftUnaryOps), makeClass(d, b)]); },
 
   // Methods
   function (d, b) { var id = makeId(d, b); return cat(["/*UUV1*/", "(", id, ".", Random.index(allMethodNames), " = ", makeFunction(d, b), ")"]); },
@@ -808,6 +810,9 @@ var exprMakers =
 
   function (d, b) { return cat(["new ", makeFunction(d, b), "(", makeActualArgList(d, b), ")"]); },
   function (d, b) { return cat(["new ", "(", makeFunction(d, b), ")", "(", makeActualArgList(d, b), ")"]); },
+
+  function (d, b) { return cat(["new ", makeClass(d, b), "(", makeActualArgList(d, b), ")"]); },
+  function (d, b) { return cat(["new ", "(", makeClass(d, b), ")", "(", makeActualArgList(d, b), ")"]); },
 
   // Sometimes we do crazy stuff, like putting a statement where an expression should go.  This frequently causes a syntax error.
   function (d, b) { return stripSemicolon(makeLittleStatement(d, b)); },
@@ -1342,6 +1347,8 @@ if (typeof oomTest === "function" && engine !== ENGINE_JAVASCRIPTCORE) {
 }
 
 let classMakers = [
+  // Parenthesized classes
+  // TBD
   /* eslint-disable no-multi-spaces */
   // ES6 Classes
   function (d, b) { return cat([(rnd(2) ? "new " : ""), "class", " ", makeId(d, b), makeFunctionBody(d, b)]); },
