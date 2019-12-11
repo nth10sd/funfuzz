@@ -299,7 +299,9 @@ var statementMakers = Random.weighted([
 if (typeof oomTest === "function" && engine !== ENGINE_JAVASCRIPTCORE) {
   statementMakers = statementMakers.concat([
     function (d, b) { return `oomTest(${makeFunction(d - 1, b)})`; },
-    function (d, b) { return `oomTest(${makeFunction(d - 1, b)}, { keepFailing: true })`; }
+    function (d, b) { return `oomTest(${makeFunction(d - 1, b)}, { keepFailing: true })`; },
+    function (d, b) { return `oomTest(${makeClass(d - 1, b)})`; },
+    function (d, b) { return `oomTest(${makeClass(d - 1, b)}, { keepFailing: true })`; }
   ]);
 }
 
@@ -529,6 +531,7 @@ var littleStatementMakers =
   // Named and unnamed functions (which have different behaviors in different places: both can be expressions,
   // but unnamed functions "want" to be expressions and named functions "want" to be special statements)
   function (d, b) { return makeFunction(d, b); },
+  function (d, b) { return makeClass(d, b); },
 
   // Return, yield, await
   function (d, b) { return cat(["return ", makeExpr(d, b), ";"]); },
@@ -731,6 +734,7 @@ var exprMakers =
   // Methods
   function (d, b) { var id = makeId(d, b); return cat(["/*UUV1*/", "(", id, ".", Random.index(allMethodNames), " = ", makeFunction(d, b), ")"]); },
   function (d, b) { var id = makeId(d, b); return cat(["/*UUV2*/", "(", id, ".", Random.index(allMethodNames), " = ", id, ".", Random.index(allMethodNames), ")"]); },
+  function (d, b) { var id = makeId(d, b); return cat(["/*UUV3*/", "(", id, ".", Random.index(allMethodNames), " = ", makeClass(d, b), ")"]); },
   function (d, b) { return cat([makeExpr(d, b), ".", Random.index(allMethodNames), "(", makeActualArgList(d, b), ")"]); },
   function (d, b) { return cat([makeExpr(d, b), ".", "valueOf", "(", uneval("number"), ")"]); },
 
@@ -1049,15 +1053,16 @@ function makeShapeyConstructor (d, b) { /* eslint-disable-line require-jsdoc */
     if (rnd(5) === 0) {
       funText += `if (${rnd(2) ? argName : makeExpr(d, bp)}) `;
     }
-    switch (rnd(8)) {
+    switch (rnd(9)) {
       /* eslint-disable no-multi-spaces */
       case 0:  funText += `delete ${tprop};`; break;
       case 1:  funText += `Object.defineProperty(${t}, ${rnd(2) ? propName : makePropertyName(d, b)}, ${makePropertyDescriptor(d, bp)});`; break;
       case 2:  funText += `{ ${makeStatement(d, bp)} } `; break;
       case 3:  funText += `${tprop} = ${makeExpr(d, bp)};`; break;
       case 4:  funText += `${tprop} = ${makeFunction(d, bp)};`; break;
-      case 5:  funText += `for (var ytq${uniqueVarName()} in ${t}) { }`; break;
-      case 6:  funText += `Object.${Random.index(["preventExtensions", "seal", "freeze"])}(${t});`; break;
+      case 5:  funText += `${tprop} = ${makeClass(d, bp)};`; break;
+      case 6:  funText += `for (var ytq${uniqueVarName()} in ${t}) { }`; break;
+      case 7:  funText += `Object.${Random.index(["preventExtensions", "seal", "freeze"])}(${t});`; break;
       default: funText += `${tprop} = ${makeShapeyValue(d, bp)};`; break;
       /* eslint-enable no-multi-spaces */
     }
@@ -1112,8 +1117,8 @@ function makePropertyDescriptor (d, b) { /* eslint-disable-line require-jsdoc */
       break;
     case 1:
     // Accessor descriptor. Can have 'get' and 'set'.
-      if (rnd(2)) s += `get: ${makeFunction(d, b)}, `;
-      if (rnd(2)) s += `set: ${makeFunction(d, b)}, `;
+      if (rnd(2)) s += (rnd(2) ? `get: ${makeFunction(d, b)}, ` : `get: ${makeClass(d, b)}, `);
+      if (rnd(2)) s += (rnd(2) ? `set: ${makeFunction(d, b)}, ` : `set: ${makeClass(d, b)}, `);
       break;
     default:
   }
@@ -1193,6 +1198,14 @@ function makeFunction (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(4) === 1) { return Random.index(builtinFunctions); }
 
   return (Random.index(functionMakers))(d, b);
+}
+
+function makeClass (d, b) { /* eslint-disable-line require-jsdoc */
+  if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
+
+  d = d - 1;
+
+  return (Random.index(classMakers))(d, b);
 }
 
 function maybeName (d, b) { /* eslint-disable-line require-jsdoc */
@@ -1327,6 +1340,57 @@ if (typeof oomTest === "function" && engine !== ENGINE_JAVASCRIPTCORE) {
     function (d, b) { return "oomTest"; }
   ]);
 }
+
+let classMakers = [
+  /* eslint-disable no-multi-spaces */
+  // ES6 Classes
+  function (d, b) { return cat([(rnd(2) ? "new " : ""), "class", " ", makeId(d, b), makeFunctionBody(d, b)]); },
+  // ES6 Classes with constructor
+  function (d, b) {
+    return cat([(rnd(2) ? "new " : ""), "class", " ", makeId(d, b), " ", "{",
+      " ", "constructor(", makeFormalArgList(d, b), ") {};", " ",
+      makeFunction(d, b),
+      "}"
+    ]);
+  },
+  // ES6 Classes with constructor and private fields
+  function (d, b) {
+    return cat([(rnd(2) ? "new " : ""), "class", " ", makeId(d, b), " ", "{",
+      " ", "constructor(", makeFormalArgList(d, b), ") {};",
+      makeFunction(d, b),
+      "}"
+    ]);
+  },
+
+  // ES6 Classes with extends
+  function (d, b) {
+    return cat([(rnd(2) ? "new " : ""), "class", " ", makeId(d, b),
+      " ", "extends", " ", (rnd(2) ? cat(["class", " ", "{", " ", makeFunction(d, b), " ", "}"]) : makeId(d, b)), "{",
+      makeFunction(d, b),
+      "}"
+    ]);
+  },
+  // ES6 Classes with constructor, extends and private fields
+  function (d, b) {
+    return cat([(rnd(2) ? "new " : ""), "class", " ", makeId(d, b),
+      " ", "extends", " ", (rnd(2) ? cat(["class", " ", "{", " ", makeFunction(d, b), " ", "}"]) : makeId(d, b)), "{",
+      " ", "constructor(", (rnd(2) ? makeFormalArgList(d, b) : ""), ") {};",
+      makeFunction(d, b),
+      "}"
+    ]);
+  },
+  // ES6 Classes with super, constructor, extends and private fields
+  function (d, b) {
+    return cat([(rnd(2) ? "new " : ""), "class", " ", makeId(d, b),
+      " ", "extends", " ", (rnd(2) ? cat(["class", " ", "{", " ", makeFunction(d, b), " ", "}"]) : makeId(d, b)), "{",
+      " ", "constructor(", makeFormalArgList(d, b), ") { ", "super(", (rnd(2) ? makeFormalArgList(d, b) : ""), ")",
+      " };",
+      makeFunction(d, b),
+      "}"
+    ]);
+  }
+  /* eslint-enable no-multi-spaces */
+];
 
 var typedArrayConstructors = [
   "Int8Array",
@@ -1916,5 +1980,14 @@ function makeAsmJSFunction (d, b) { /* eslint-disable-line require-jsdoc */
   if (rnd(TOTALLY_RANDOM) === 2) return totallyRandom(d, b);
 
   var interior = asmJSInterior(["ff"]);
-  return `(function(stdlib, foreign, heap){ "use asm"; ${interior} })(this, {ff: ${makeFunction(d - 2, b)}}, new ${arrayBufferType()}(4096))`;
+
+  let ffBody;
+  switch (rnd(2)) {
+    /* eslint-disable no-multi-spaces */
+    case 0:  ffBody = makeClass(d - 2, b); break;
+    default: ffBody = makeFunction(d - 2, b);
+    /* eslint-enable no-multi-spaces */
+  }
+
+  return `(function(stdlib, foreign, heap){ "use asm"; ${interior} })(this, {ff: ${ffBody}}, new ${arrayBufferType()}(4096))`;
 }
