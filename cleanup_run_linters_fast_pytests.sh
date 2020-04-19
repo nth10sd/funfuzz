@@ -2,9 +2,6 @@
 
 # Run this here in the funfuzz directory, e.g.:
 #   ./cleanup_run_linters_fast_pytests.sh
-# Run with a parameter to run flake8 and pylint only in that subdirectory, e.g.:
-#   ./cleanup_run_linters_fast_pytests.sh src
-# will only run flake8 and pylint in the src/ subdirectory.
 
 # Run shellcheck and bashate first
 find . -type d \( -name venv -o -name node_modules \) -prune \
@@ -28,7 +25,7 @@ $PY3 -c "$CURR_PATHLIB_PATH.rglob('__pycache__'): p.rmdir()"
 
 # Run flake8
 if $PY3 -m flake8 --version > /dev/null 2>&1; then
-    $PY3 -m flake8 $1 || {
+    $PY3 -m flake8 . || {
         FLAKE8_EC=$?;
         printf '%s\n' "flake8 found errors, exiting early." >&2;
         exit "$FLAKE8_EC";
@@ -51,10 +48,13 @@ fi
 
 # Run pylint
 if $PY3 -m pylint --version > /dev/null 2>&1; then
-    for i in $(echo ./$1/*/); do
-        $PY3 -m pylint "$i" || {
-            PYLINT_EC=$?; printf '%s\n' "pylint found errors." >&2;
-        };
+    for i in $(echo ./*/); do
+        # Ignore *-egg-info directories
+        if [[ ${i} != *".egg-info"* ]]; then
+            $PY3 -m pylint "$i" || {
+                PYLINT_EC=$?; printf '%s\n' "pylint found errors." >&2;
+            };
+        fi;
     done
     echo "pylint finished running."
 else
