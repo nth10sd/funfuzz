@@ -1,15 +1,18 @@
 #! /bin/bash -ex
 
 # Run this here in the funfuzz directory, e.g.:
-# ./cleanup_run_linters_fast_pytests.sh
+#   ./cleanup_run_linters_fast_pytests.sh
+# Run with a parameter to run flake8 and pylint only in that subdirectory, e.g.:
+#   ./cleanup_run_linters_fast_pytests.sh src
+# will only run flake8 and pylint in the src/ subdirectory.
 
 # Run shellcheck and bashate first
 find . -type d \( -name venv -o -name node_modules \) -prune \
     -o -type f -name "*.sh" -print0 |
-        xargs -n 1 -0 shellcheck
+        xargs --no-run-if-empty -n 1 -0 shellcheck
 find . -type d \( -name venv -o -name node_modules \) -prune \
     -o -type f -name "*.sh" -print0 |
-        xargs -n 1 -0 bashate
+        xargs --no-run-if-empty -n 1 -0 bashate
 
 # This script runs flake8, pytest "not slow" and pylint tests if they are installed in python3
 # Define the location of python3 using the $PY3_PATH variable, else `command -v python3` is used
@@ -25,7 +28,7 @@ $PY3 -c "$CURR_PATHLIB_PATH.rglob('__pycache__'): p.rmdir()"
 
 # Run flake8
 if $PY3 -m flake8 --version > /dev/null 2>&1; then
-    $PY3 -m flake8 . || {
+    $PY3 -m flake8 $1 || {
         FLAKE8_EC=$?;
         printf '%s\n' "flake8 found errors, exiting early." >&2;
         exit "$FLAKE8_EC";
@@ -48,7 +51,7 @@ fi
 
 # Run pylint
 if $PY3 -m pylint --version > /dev/null 2>&1; then
-    for i in $(echo ./*/); do
+    for i in $(echo ./$1/*/); do
         $PY3 -m pylint "$i" || {
             PYLINT_EC=$?; printf '%s\n' "pylint found errors." >&2;
         };
